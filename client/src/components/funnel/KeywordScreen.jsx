@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '../../assets/logonew.png';
+import { BASE_URL } from '../../services/api';
 
 const SERVICES_DATA = {
   "Digital Marketing": [
@@ -178,6 +179,17 @@ const KeywordScreen = ({ onNext, customQuestions, logo: clientLogo, colors }) =>
     });
   };
 
+  const isValidLogo = clientLogo && 
+                      clientLogo !== 'null' && 
+                      clientLogo !== 'undefined' && 
+                      clientLogo !== '' && 
+                      !clientLogo.endsWith('undefined') && 
+                      !clientLogo.endsWith('null');
+
+  const logoSrc = isValidLogo 
+    ? (clientLogo.startsWith('http') ? clientLogo : `${BASE_URL}${clientLogo.startsWith('/') ? '' : '/'}${clientLogo}`) 
+    : logo;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -188,7 +200,7 @@ const KeywordScreen = ({ onNext, customQuestions, logo: clientLogo, colors }) =>
     >
       <div className="flex justify-center mb-6 pt-2">
         <img
-          src={clientLogo ? (clientLogo.startsWith('http') ? clientLogo : `http://localhost:5000${clientLogo.startsWith('/') ? '' : '/'}${clientLogo}`) : logo}
+          src={logoSrc}
           alt="Business Logo"
           className="h-28 w-auto object-contain"
         />

@@ -1,9 +1,14 @@
 import axios from 'axios';
 
-const resolveApiUrl = () => {
-  const configuredUrl = import.meta.env.VITE_API_URL?.trim();
+const resolveBaseUrl = () => {
+  let configuredUrl = import.meta.env.VITE_API_URL?.trim();
   if (configuredUrl) {
-    return configuredUrl.replace(/\/$/, '');
+    // Remove trailing slash and /api suffix to get the root server URL
+    configuredUrl = configuredUrl.replace(/\/$/, '');
+    if (configuredUrl.endsWith('/api')) {
+      configuredUrl = configuredUrl.slice(0, -4);
+    }
+    return configuredUrl;
   }
 
   if (typeof window !== 'undefined') {
@@ -14,14 +19,17 @@ const resolveApiUrl = () => {
       hostname.startsWith('192.168.');
 
     if (isLocalHost) {
-      return `${protocol}//${hostname}:5000/api`;
+      return `${protocol}//${hostname}:8080`;
     }
   }
 
-  return 'http://localhost:5000/api';
+  return 'http://localhost:8080';
 };
 
-const API_URL = resolveApiUrl();
+// Root server URL (for images, uploads, etc.) — change port/domain only in .env VITE_API_URL
+export const BASE_URL = resolveBaseUrl();
+
+const API_URL = `${BASE_URL}/api`;
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -87,9 +95,9 @@ export const reviewService = {
     }
   },
 
-  generateReview: async (keywords, businessName) => {
+  generateReview: async (keywords, businessName, language = 'english') => {
     try {
-      const response = await api.post('/review/generate', { keywords, businessName });
+      const response = await api.post('/review/generate', { keywords, businessName, language });
       return response.data; // { generatedReview: "..." }
     } catch (error) {
       console.error("API error during generateReview:", error);

@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, QrCode, Settings, LogOut, Menu, X, Users, MessageSquare, CreditCard, Bell } from 'lucide-react';
-import { authService, adminService } from '../services/api';
+import { authService, adminService, BASE_URL } from '../services/api';
 import { useClientContext } from '../context/ClientContext';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
@@ -238,7 +238,7 @@ const Navbar = () => {
             <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 overflow-hidden shadow-md">
               <img
                 src={user?.role === 'client' && user?.logo
-                  ? (user.logo.startsWith('http') ? user.logo : `http://localhost:5000${user.logo.startsWith('/') ? '' : '/'}${user.logo}`)
+                  ? (user.logo.startsWith('http') ? user.logo : `${BASE_URL}${user.logo.startsWith('/') ? '' : '/'}${user.logo}`)
                   : logo}
                 alt="Logo"
                 className="w-full h-full object-contain p-1"

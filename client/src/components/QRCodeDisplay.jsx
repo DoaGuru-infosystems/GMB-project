@@ -3,6 +3,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { Download, ExternalLink, Link as LinkIcon, Star, QrCode, Smartphone } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import logoNew from '../assets/logonew.png';
+import { BASE_URL } from '../services/api';
 
 const QRCodeDisplay = ({ targetUrl, qrCodeDataUrl = null, businessName = "Business Name", logo = null, websiteUrl = "" }) => {
   const [fgColor, setFgColor] = useState('#000000');
@@ -12,7 +13,7 @@ const QRCodeDisplay = ({ targetUrl, qrCodeDataUrl = null, businessName = "Busine
   // Convert logo to Base64 to avoid CORS issues in SVG/Canvas
   React.useEffect(() => {
     const convertLogo = async () => {
-      const url = logo ? (logo.startsWith('http') ? logo : `http://localhost:5000/${logo.replace(/\\/g, '/').replace(/^\//, '')}`) : logoNew;
+      const url = logo ? (logo.startsWith('http') ? logo : `${BASE_URL}/${logo.replace(/\\/g, '/').replace(/^\//, '')}`) : logoNew;
       try {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Network response was not ok');
@@ -136,7 +137,7 @@ const QRCodeDisplay = ({ targetUrl, qrCodeDataUrl = null, businessName = "Busine
                 <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden p-1.5">
                   {logo ? (
                     <img
-                      src={logo.startsWith('http') ? logo : `http://localhost:5000${logo.startsWith('/') ? '' : '/'}${logo}`}
+                      src={logo.startsWith('http') ? logo : `${BASE_URL}${logo.startsWith('/') ? '' : '/'}${logo}`}
                       alt="Logo"
                       className="w-full h-full object-contain"
                       crossOrigin="anonymous"
@@ -167,7 +168,7 @@ const QRCodeDisplay = ({ targetUrl, qrCodeDataUrl = null, businessName = "Busine
                   level="H"
                   includeMargin={false}
                   imageSettings={{
-                    src: logoBase64 || (logo ? (logo.startsWith('http') ? logo : `http://localhost:5000/${logo.replace(/\\/g, '/').replace(/^\//, '')}`) : logoNew),
+                    src: logoBase64 || (logo ? (logo.startsWith('http') ? logo : `${BASE_URL}/${logo.replace(/\\/g, '/').replace(/^\//, '')}`) : logoNew),
                     height: 50,
                     width: 50,
                     excavate: true,

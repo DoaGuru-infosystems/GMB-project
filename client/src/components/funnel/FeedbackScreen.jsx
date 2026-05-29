@@ -5,12 +5,25 @@ import { User, Phone, Mail, Send } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import logo from '../../assets/logonew.png';
 
-const FeedbackScreen = ({ onSubmit }) => {
+import { BASE_URL } from '../../services/api';
+
+const FeedbackScreen = ({ onSubmit, logo: clientLogo }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const handleFormSubmit = (data) => {
     onSubmit(data);
   };
+
+  const isValidLogo = clientLogo && 
+                      clientLogo !== 'null' && 
+                      clientLogo !== 'undefined' && 
+                      clientLogo !== '' && 
+                      !clientLogo.endsWith('undefined') && 
+                      !clientLogo.endsWith('null');
+
+  const logoSrc = isValidLogo 
+    ? (clientLogo.startsWith('http') ? clientLogo : `${BASE_URL}${clientLogo.startsWith('/') ? '' : '/'}${clientLogo}`) 
+    : logo;
 
   return (
     <motion.div
@@ -21,7 +34,7 @@ const FeedbackScreen = ({ onSubmit }) => {
       className="flex flex-col flex-1"
     >
       <div className="flex justify-center mb-8">
-        <img src={logo} alt="DOAGuru Logo" className="h-28 w-auto object-contain" />
+        <img src={logoSrc} alt="DOAGuru Logo" className="h-28 w-auto object-contain" />
       </div>
 
       <div className="space-y-3 mb-6 text-left px-2">

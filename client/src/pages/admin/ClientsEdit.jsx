@@ -7,6 +7,7 @@ import {
   CheckCircle, Loader2, Sparkles
 } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
+import { BASE_URL } from '../../services/api';
 
 const ClientsEdit = () => {
   const { clientId } = useParams();
@@ -350,7 +351,7 @@ const ClientsEdit = () => {
                 {logoFile ? (
                   <img src={URL.createObjectURL(logoFile)} className="w-full h-full object-contain p-2" alt="New Logo" />
                 ) : isEdit && watch('logo') ? (
-                  <img src={`http://localhost:5000${watch('logo').startsWith('/') ? '' : '/'}${watch('logo')}`} className="w-full h-full object-contain p-2" alt="Existing" />
+                  <img src={`${BASE_URL}${watch('logo').startsWith('/') ? '' : '/'}${watch('logo')}`} className="w-full h-full object-contain p-2" alt="Existing" />
                 ) : (
                   <div className="text-center p-4">
                     <Sparkles className="mx-auto text-slate-300 mb-2" size={32} />

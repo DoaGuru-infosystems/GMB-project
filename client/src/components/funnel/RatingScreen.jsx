@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 import logo from '../../assets/logonew.png';
 
+import { BASE_URL } from '../../services/api';
+
 const ratingTexts = {
   1: "Poor",
   2: "Bad",
@@ -12,8 +14,19 @@ const ratingTexts = {
   5: "Excellent"
 };
 
-const RatingScreen = ({ onRatingSelect }) => {
+const RatingScreen = ({ onRatingSelect, logo: clientLogo }) => {
   const [hoverRating, setHoverRating] = useState(0);
+
+  const isValidLogo = clientLogo && 
+                      clientLogo !== 'null' && 
+                      clientLogo !== 'undefined' && 
+                      clientLogo !== '' && 
+                      !clientLogo.endsWith('undefined') && 
+                      !clientLogo.endsWith('null');
+
+  const logoSrc = isValidLogo 
+    ? (clientLogo.startsWith('http') ? clientLogo : `${BASE_URL}${clientLogo.startsWith('/') ? '' : '/'}${clientLogo}`) 
+    : logo;
 
   return (
     <motion.div
@@ -24,7 +37,7 @@ const RatingScreen = ({ onRatingSelect }) => {
       className="flex flex-col flex-1"
     >
       <div className="flex justify-center mb-8">
-        <img src={logo} alt="DOAGuru Logo" className="h-28 w-auto object-contain" />
+        <img src={logoSrc} alt="DOAGuru Logo" className="h-28 w-auto object-contain" />
       </div>
 
       <div className="space-y-4 mb-10 text-left px-2">

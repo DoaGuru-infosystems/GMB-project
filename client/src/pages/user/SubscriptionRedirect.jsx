@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { subscriptionService } from '../../services/api';
+import { subscriptionService, BASE_URL } from '../../services/api';
 import { CreditCard, Check, ArrowRight, Building2, Mail, Phone, AlertCircle } from 'lucide-react';
 
 const SubscriptionRedirect = () => {
@@ -116,7 +116,7 @@ const SubscriptionRedirect = () => {
               <div className="w-16 h-16 rounded-xl bg-primary/10 text-primary flex items-center justify-center overflow-hidden flex-shrink-0">
                 {clientDetails.logo ? (
                   <img
-                    src={`http://${window.location.hostname}:5000${clientDetails.logo}`}
+                    src={clientDetails.logo.startsWith('http') ? clientDetails.logo : `${BASE_URL}${clientDetails.logo.startsWith('/') ? '' : '/'}${clientDetails.logo}`}
                     alt={clientDetails.businessName || clientDetails.name}
                     className="w-full h-full object-cover"
                   />

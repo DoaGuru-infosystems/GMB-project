@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { useClientContext } from '../../context/ClientContext';
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import QRCodeDisplay from '../../components/QRCodeDisplay';
+import { BASE_URL } from '../../services/api';
 
 const Clients = () => {
   const containerRef = useRef(null);
@@ -142,7 +143,7 @@ const Clients = () => {
                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 text-white font-bold text-xl shadow-sm border border-slate-200/50 ${client.isActive ? 'bg-gradient-to-br from-indigo-500 to-purple-500' : 'bg-slate-400'}`}>
                           {client.logo ? (
                             <img 
-                              src={client.logo.startsWith('http') ? client.logo : `http://localhost:5000${client.logo.startsWith('/') ? '' : '/'}${client.logo}`} 
+                              src={client.logo.startsWith('http') ? client.logo : `${BASE_URL}${client.logo.startsWith('/') ? '' : '/'}${client.logo}`} 
                               alt="logo" 
                               className="w-full h-full rounded-xl object-cover" 
                             />

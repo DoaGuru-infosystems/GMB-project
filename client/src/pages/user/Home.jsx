@@ -26,10 +26,16 @@ const Home = () => {
 
   React.useEffect(() => {
     const fetchProfile = async () => {
+      if (!clientId || clientId === 'admin') {
+        // No real client profile for admin preview
+        setClientProfile({ businessName: 'DOAGuru InfoSystems' });
+        return;
+      }
       try {
         const profile = await clientService.getPublicClientProfile(clientId);
+        console.log('[Home] clientProfile fetched:', profile);
+        console.log('[Home] businessName:', profile?.businessName);
         setClientProfile(profile);
-        // Apply custom colors to CSS variables if needed, or pass as props
       } catch (err) {
         console.error("Error fetching client profile", err);
       }
@@ -105,13 +111,21 @@ const Home = () => {
 
           {step === 'rating' && (
             <motion.div key="rating" className="flex-1 flex flex-col justify-center">
-              <RatingScreen onRatingSelect={handleRatingSelect} colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }} />
+              <RatingScreen 
+                onRatingSelect={handleRatingSelect} 
+                logo={clientProfile?.logo}
+                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }} 
+              />
             </motion.div>
           )}
 
           {step === 'feedback' && (
             <motion.div key="feedback" className="flex-1 flex flex-col justify-center">
-              <FeedbackScreen onSubmit={handleFeedbackSubmit} colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }} />
+              <FeedbackScreen 
+                onSubmit={handleFeedbackSubmit} 
+                logo={clientProfile?.logo}
+                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }} 
+              />
             </motion.div>
           )}
 
