@@ -14,13 +14,13 @@ const Login = () => {
     setError('');
 
     try {
-        const response = await authService.login(data.email, data.password);
-      
+      const response = await authService.login(data.email, data.password);
+
       // Check if user needs subscription
       if (response.needsSubscription) {
         navigate(`/subscription/${response.clientId}`);
       } else {
-        navigate('/admin/dashboard'); 
+        navigate('/admin/dashboard');
       }
     } catch (err) {
       // Check if error is about subscription
@@ -51,9 +51,9 @@ const Login = () => {
             <label className="text-xs font-bold text-slate-400 uppercase ml-1">Email Address</label>
             <input
               type="email"
-              {...register("email", { 
-                required: "Email is required", 
-                pattern: { value: /^\S+@\S+$/i, message: "Invalid email format" } 
+              {...register("email", {
+                required: "Email is required",
+                pattern: { value: /^\S+@\S+$/i, message: "Invalid email format" }
               })}
               className={`w-full px-4 py-3 bg-slate-50 border ${errors.email ? 'border-red-300 ring-4 ring-red-50' : 'border-slate-200'} rounded-xl outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium`}
               placeholder="admin@example.com"

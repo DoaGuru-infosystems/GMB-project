@@ -1,41 +1,97 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { reviewService } from '../../services/api';
-import { Star, Sparkles, ChevronRight, Check } from 'lucide-react';
+import { Star, Sparkles, ChevronRight, Check, Copy } from 'lucide-react';
+
+// Custom, crisp Circular SVG Flags and Icons to look highly professional
+const EnglishFlag = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" className="w-12 h-12 rounded-full shadow-sm border border-slate-200/50 shrink-0">
+    <clipPath id="uk-circle">
+      <circle cx="20" cy="20" r="20" />
+    </clipPath>
+    <g clipPath="url(#uk-circle)">
+      {/* Blue background */}
+      <rect width="40" height="40" fill="#012169" />
+      {/* White diagonals */}
+      <line x1="0" y1="0" x2="40" y2="40" stroke="#fff" strokeWidth="4.8" />
+      <line x1="40" y1="0" x2="0" y2="40" stroke="#fff" strokeWidth="4.8" />
+      {/* Red diagonals */}
+      <line x1="0" y1="0" x2="40" y2="40" stroke="#C8102E" strokeWidth="1.6" />
+      <line x1="40" y1="0" x2="0" y2="40" stroke="#C8102E" strokeWidth="1.6" />
+      {/* White cross */}
+      <rect x="16" y="0" width="8" height="40" fill="#fff" />
+      <rect x="0" y="16" width="40" height="8" fill="#fff" />
+      {/* Red cross */}
+      <rect x="18" y="0" width="4" height="40" fill="#C8102E" />
+      <rect x="0" y="18" width="40" height="4" fill="#C8102E" />
+    </g>
+  </svg>
+);
+
+const HindiFlag = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" className="w-12 h-12 rounded-full shadow-sm border border-slate-200/50 shrink-0">
+    <clipPath id="in-circle">
+      <circle cx="20" cy="20" r="20" />
+    </clipPath>
+    <g clipPath="url(#in-circle)">
+      {/* Saffron */}
+      <rect width="40" height="13.3" fill="#FF9933" />
+      {/* White */}
+      <rect y="13.3" width="40" height="13.3" fill="#FFFFFF" />
+      {/* Green */}
+      <rect y="26.6" width="40" height="13.4" fill="#138808" />
+      {/* Chakra */}
+      <circle cx="20" cy="20" r="4" fill="none" stroke="#000080" strokeWidth="0.8" />
+      <circle cx="20" cy="20" r="0.8" fill="#000080" />
+      <path d="M20 16v8M16 20h8M17.2 17.2l5.6 5.6M22.8 17.2l-5.6 5.6" stroke="#000080" strokeWidth="0.4" />
+    </g>
+  </svg>
+);
+
+const HinglishIcon = () => (
+  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-sm shrink-0 border border-slate-200/50">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5.5 h-5.5 text-white" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m11 17 2 2a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L13 17" />
+      <path d="m18 10 1-1A3.13 3.13 0 1 0 14.5 4.5L13 6" />
+      <path d="m14 13-1.5-1.5" />
+      <path d="m9 8-5 5a3.13 3.13 0 1 0 4.4 4.4L13 13" />
+    </svg>
+  </div>
+);
 
 const LANGUAGES = [
   {
     key: 'english',
     label: 'English',
-    emoji: '🇬🇧',
+    icon: <EnglishFlag />,
     description: 'Review in English',
-    example: '"Amazing experience! Highly recommend!"',
-    gradient: 'from-[#2f80ed] to-[#007aff]',
-    shadow: 'shadow-blue-500/20',
+    colorClass: 'border-slate-200/80 hover:border-blue-400 hover:bg-blue-50/10',
+    arrowClass: 'group-hover:bg-blue-500 group-hover:text-white',
     ring: 'ring-blue-400',
-    glowColor: 'rgba(47, 128, 237, 0.4)'
+    gradient: 'from-blue-500 to-indigo-600',
+    glowColor: 'rgba(37, 99, 235, 0.15)'
   },
   {
     key: 'hindi',
     label: 'हिंदी',
-    emoji: '🇮🇳',
-    description: 'हिंदी में रिव्यू (Devanagari Only)',
-    example: '"सच में यहाँ का काम बहुत शानदार था!"',
-    gradient: 'from-[#f2994a] to-[#f2c94c]',
-    shadow: 'shadow-orange-500/20',
+    icon: <HindiFlag />,
+    description: 'हिंदी में रिव्यू',
+    colorClass: 'border-slate-200/80 hover:border-orange-400 hover:bg-orange-50/10',
+    arrowClass: 'group-hover:bg-orange-500 group-hover:text-white',
     ring: 'ring-orange-400',
-    glowColor: 'rgba(242, 153, 74, 0.4)'
+    gradient: 'from-orange-500 to-amber-500',
+    glowColor: 'rgba(249, 115, 22, 0.15)'
   },
   {
     key: 'hinglish',
     label: 'Hinglish',
-    emoji: '🤝',
+    icon: <HinglishIcon />,
     description: 'Hindi + English Mix',
-    example: '"Yaar, ekdum amazing experience tha!"',
-    gradient: 'from-[#11998e] to-[#38ef7d]',
-    shadow: 'shadow-emerald-500/20',
+    colorClass: 'border-slate-200/80 hover:border-emerald-400 hover:bg-emerald-50/10',
+    arrowClass: 'group-hover:bg-emerald-500 group-hover:text-white',
     ring: 'ring-emerald-400',
-    glowColor: 'rgba(17, 153, 142, 0.4)'
+    gradient: 'from-emerald-500 to-teal-500',
+    glowColor: 'rgba(16, 185, 129, 0.15)'
   },
 ];
 
@@ -52,6 +108,7 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
   const [selectedLang, setSelectedLang] = useState(null);
   const [reviewText, setReviewText] = useState('');
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [copied, setCopied] = useState(false);
 
   // Rotate loading steps for beautiful loading animation narrative
   useEffect(() => {
@@ -115,6 +172,12 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
     }
   };
 
+  const handleCopyOnly = async () => {
+    await copyToClipboard();
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const handleShareOnGoogle = async () => {
     await copyToClipboard();
     onPostGoogle(reviewText);
@@ -124,6 +187,7 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
     setPhase('select');
     setSelectedLang(null);
     setReviewText('');
+    setCopied(false);
   };
 
   const langInfo = LANGUAGES.find(l => l.key === selectedLang);
@@ -138,11 +202,11 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
     >
       {/* Header */}
       <div className="text-left px-2 mb-6">
-        <h2 className="text-[24px] font-black text-[#0f172a] leading-tight mb-1 flex items-center gap-2">
+        <h2 className="text-[24px] font-black text-[#0f172a] leading-tight mb-1.5 flex items-center gap-2">
           <span>Share Your Experience</span>
           <Sparkles className="w-5 h-5 text-amber-500 animate-pulse" />
         </h2>
-        <p className="text-slate-500 font-normal text-[15px] leading-relaxed">
+        <p className="text-slate-500 font-medium text-[15px] leading-relaxed">
           {phase === 'select'
             ? 'Choose a language for your personalized review.'
             : phase === 'generating'
@@ -154,7 +218,7 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
       <div className="flex-1 flex flex-col px-2">
         <AnimatePresence mode="wait">
 
-          {/* ── PHASE: Language Selection ── */}
+          {/* ── PHASE: Language Selection (3-Column Grid) ── */}
           {phase === 'select' && (
             <motion.div
               key="select"
@@ -162,54 +226,50 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-6"
             >
-              <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center">
                 Select language option below
               </p>
 
-              {LANGUAGES.map((lang, i) => (
-                <motion.button
-                  key={lang.key}
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.08, type: "spring", stiffness: 120 }}
-                  whileHover={{ 
-                    scale: 1.025, 
-                    boxShadow: `0 12px 24px -10px ${lang.glowColor}`,
-                    y: -3
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleLanguageSelect(lang.key)}
-                  className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl bg-gradient-to-r ${lang.gradient} text-white shadow-lg ${lang.shadow} transition-all relative overflow-hidden group`}
-                >
-                  {/* Glowing background bubble effect */}
-                  <span className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-all duration-500" />
-                  
-                  {/* Floating Emojis */}
-                  <motion.div 
-                    whileHover={{ rotate: [0, -10, 10, 0] }}
-                    transition={{ duration: 0.4 }}
-                    className="text-4xl z-10 w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner"
+              <div className="grid grid-cols-3 gap-4">
+                {LANGUAGES.map((lang, i) => (
+                  <motion.button
+                    key={lang.key}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.08, type: "spring", stiffness: 120 }}
+                    whileHover={{ 
+                      scale: 1.04, 
+                      boxShadow: `0 12px 24px -10px ${lang.glowColor}`,
+                      y: -4
+                    }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => handleLanguageSelect(lang.key)}
+                    className={`flex flex-col items-center text-center p-4 rounded-2xl border bg-white shadow-sm transition-all group ${lang.colorClass}`}
                   >
-                    {lang.emoji}
-                  </motion.div>
+                    {/* Circular Flag / Icon */}
+                    <div className="mb-3 transform group-hover:scale-110 transition-transform duration-300">
+                      {lang.icon}
+                    </div>
 
-                  <div className="flex flex-col items-start text-left z-10">
-                    <span className="text-[18px] font-black leading-tight flex items-center gap-1.5">
+                    <h3 className="text-[16px] font-black text-slate-800 leading-none mb-1 group-hover:text-slate-900 transition-colors">
                       {lang.label}
-                    </span>
-                    <span className="text-[12px] opacity-90 font-semibold">{lang.description}</span>
-                    <span className="text-[11px] opacity-75 mt-0.5 italic bg-black/10 px-2 py-0.5 rounded-md">
-                      {lang.example}
-                    </span>
-                  </div>
+                    </h3>
+                    
+                    <p className="text-[11px] text-slate-400 font-semibold leading-tight mb-4 flex-1">
+                      {lang.description}
+                    </p>
 
-                  <div className="ml-auto z-10 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:translate-x-1 transition-all">
-                    <ChevronRight className="w-5 h-5 text-white" />
-                  </div>
-                </motion.button>
-              ))}
+                    {/* Minimal Arrow Indicator */}
+                    <div className={`w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 transition-all shrink-0 ${lang.arrowClass}`}>
+                      <ChevronRight className="w-4 h-4 transition-colors" />
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+
+
             </motion.div>
           )}
 
@@ -248,9 +308,11 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
                 <motion.div 
                   animate={{ y: [0, -5, 0] }}
                   transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-16 h-16 rounded-2xl bg-white/80 backdrop-blur-md shadow-2xl flex items-center justify-center z-10 border border-white/40"
+                  className="w-16 h-16 rounded-2xl bg-white/90 backdrop-blur-md shadow-xl flex items-center justify-center z-10 border border-white/60 overflow-hidden"
                 >
-                  <span className="text-3xl filter drop-shadow-sm">{langInfo?.emoji}</span>
+                  {langInfo?.key === 'english' && <div className="scale-110"><EnglishFlag /></div>}
+                  {langInfo?.key === 'hindi' && <div className="scale-110"><HindiFlag /></div>}
+                  {langInfo?.key === 'hinglish' && <div className="scale-100"><HinglishIcon /></div>}
                 </motion.div>
               </div>
 
@@ -289,26 +351,30 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
               className="flex flex-col"
             >
               {/* Language Badge */}
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center justify-between mb-4">
                 <span
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-black text-white bg-gradient-to-r ${langInfo?.gradient} shadow-sm`}
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[12px] font-bold text-slate-700 bg-slate-100 border border-slate-200/80 shadow-sm"
                 >
-                  {langInfo?.emoji} {langInfo?.label}
+                  {langInfo?.key === 'english' && <span className="scale-75 origin-left w-9 h-6 overflow-hidden flex items-center"><EnglishFlag /></span>}
+                  {langInfo?.key === 'hindi' && <span className="scale-75 origin-left w-9 h-6 overflow-hidden flex items-center"><HindiFlag /></span>}
+                  {langInfo?.key === 'hinglish' && <span className="scale-75 origin-left w-9 h-6 overflow-hidden flex items-center"><HinglishIcon /></span>}
+                  <span className="-ml-2">{langInfo?.label}</span>
                 </span>
+                
                 <button
                   onClick={handleRegenerateAnother}
-                  className="text-[12px] text-slate-400 hover:text-[#007aff] font-bold underline underline-offset-2 transition-colors ml-1"
+                  className="text-[12px] text-slate-400 hover:text-[#007aff] font-bold underline underline-offset-2 transition-colors"
                 >
                   Change language
                 </button>
               </div>
 
               <p className="text-slate-500 text-[13px] mb-4 leading-relaxed font-semibold">
-                Based on your selections, we have crafted this review for you. You can copy it, modify it, and post it directly on Google Maps.
+                Based on your selections, we have crafted this review for you. You can edit it if you wish, then copy it to post on Google.
               </p>
 
               {/* Premium Review Textarea Wrapper */}
-              <div className={`w-full border-2 rounded-2xl bg-slate-50/50 backdrop-blur-sm px-4 py-4 mb-5 ring-2 ring-offset-2 ${langInfo?.ring || 'ring-blue-400'} ring-opacity-20 border-slate-200 shadow-inner relative transition-all`}>
+              <div className={`w-full border rounded-2xl bg-slate-50/40 border-slate-200 px-4 py-4 pb-12 mb-5 relative transition-all ring-4 ring-slate-100 focus-within:border-${langInfo?.key === 'english' ? 'blue' : langInfo?.key === 'hindi' ? 'orange' : 'emerald'}-400`}>
                 <textarea
                   ref={(el) => {
                     if (el) {
@@ -325,17 +391,35 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
                   className="w-full text-[15px] text-[#1e293b] font-semibold leading-relaxed bg-transparent outline-none resize-none overflow-hidden"
                   placeholder="Your review will appear here..."
                 />
+                
+                {/* Floating Clean Copy Button */}
+                <button
+                  onClick={handleCopyOnly}
+                  className="absolute bottom-3 right-3 py-1.5 px-3 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-all shadow-sm flex items-center gap-1.5 text-[12px] font-bold active:scale-95"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-emerald-600">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
               </div>
 
               {/* Premium Copy/Google CTA Button */}
               <motion.button
-                whileHover={{ scale: 1.025, boxShadow: `0 12px 24px -10px ${langInfo?.glowColor || 'rgba(0,122,255,0.4)'}` }}
+                whileHover={{ scale: 1.02, boxShadow: `0 12px 24px -10px ${langInfo?.glowColor || 'rgba(0,122,255,0.4)'}` }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleShareOnGoogle}
-                className={`w-full py-4 px-6 text-[16px] font-black rounded-2xl text-white shadow-lg bg-gradient-to-r ${langInfo?.gradient || 'from-blue-500 to-indigo-600'} transition-all flex items-center justify-center gap-2 mb-4`}
+                className={`w-full py-4 px-6 text-[16px] font-black rounded-2xl text-white shadow-md bg-gradient-to-r ${langInfo?.gradient || 'from-blue-500 to-indigo-600'} transition-all flex items-center justify-center gap-2 mb-4`}
               >
                 <Check className="w-5 h-5 text-white" />
-                <span>Copy review & Continue to Google</span>
+                <span>Copy review & Open Google Maps</span>
               </motion.button>
 
               {/* Regenerate Trigger */}

@@ -1,29 +1,7 @@
 import axios from 'axios';
 
 const resolveBaseUrl = () => {
-  let configuredUrl = import.meta.env.VITE_API_URL?.trim();
-  if (configuredUrl) {
-    // Remove trailing slash and /api suffix to get the root server URL
-    configuredUrl = configuredUrl.replace(/\/$/, '');
-    if (configuredUrl.endsWith('/api')) {
-      configuredUrl = configuredUrl.slice(0, -4);
-    }
-    return configuredUrl;
-  }
-
-  if (typeof window !== 'undefined') {
-    const { protocol, hostname } = window.location;
-    const isLocalHost =
-      hostname === 'localhost' ||
-      hostname === '127.0.0.1' ||
-      hostname.startsWith('192.168.');
-
-    if (isLocalHost) {
-      return `${protocol}//${hostname}:8080`;
-    }
-  }
-
-  return 'http://localhost:8080';
+  return 'https://gmb.doaguru.com';
 };
 
 // Root server URL (for images, uploads, etc.) — change port/domain only in .env VITE_API_URL

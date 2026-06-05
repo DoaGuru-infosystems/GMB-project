@@ -3,6 +3,17 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const ensureSubscriptionSchema = require("../utils/ensureSubscriptionSchema");
 
+const getCookieOptions = (req) => {
+  const host = req.headers.host || "";
+  const isLocalhost = host.includes("localhost") || host.includes("127.0.0.1") || host.startsWith("192.168.");
+
+  return {
+    httpOnly: true,
+    secure: !isLocalhost,
+    sameSite: isLocalhost ? "lax" : "none",
+  };
+};
+
 exports.login = (req, res) => {
   const { email, password } = req.body;
 
@@ -37,10 +48,7 @@ exports.login = (req, res) => {
           { expiresIn: "1d" }
         );
 
-        res.cookie("token", token, {
-          httpOnly: true,
-          sameSite: "lax",
-        });
+        res.cookie("token", token, getCookieOptions(req));
 
         return res.json({ message: "Admin login success", role: "admin" });
       }
@@ -109,10 +117,7 @@ exports.login = (req, res) => {
                     { expiresIn: "1d" }
                   );
 
-                  res.cookie("token", token, {
-                    httpOnly: true,
-                    sameSite: "lax",
-                  });
+                  res.cookie("token", token, getCookieOptions(req));
 
                   return res.json({
                     message: "Client login success",
@@ -143,10 +148,10 @@ exports.login = (req, res) => {
 };
 
 exports.logout = (req, res) => {
+  const cookieOptions = getCookieOptions(req);
   res.cookie("token", "", {
-    httpOnly: true,
+    ...cookieOptions,
     expires: new Date(0),
-    sameSite: "lax"
   });
   res.json({ message: "Logout successful" });
 };

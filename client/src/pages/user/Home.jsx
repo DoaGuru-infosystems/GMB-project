@@ -101,7 +101,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white md:bg-[#ffffff] font-sans px-0 md:px-4 py-0 md:py-8">
-      <div className="w-full md:max-w-lg bg-white md:rounded-3xl md:shadow-xl p-6 md:p-8 relative z-10 min-h-screen md:min-h-[580px] flex flex-col">
+      <div className="w-full md:max-w-lg bg-white md:rounded-3xl md:shadow-xl p-6 md:p-8 relative z-10 min-h-screen md:min-h-[480px] flex flex-col">
         <AnimatePresence mode="wait">
           {step === 'welcome' && (
             <motion.div key="welcome" className="flex-1 flex flex-col justify-center">
@@ -111,43 +111,43 @@ const Home = () => {
 
           {step === 'rating' && (
             <motion.div key="rating" className="flex-1 flex flex-col justify-center">
-              <RatingScreen 
-                onRatingSelect={handleRatingSelect} 
+              <RatingScreen
+                onRatingSelect={handleRatingSelect}
                 logo={clientProfile?.logo}
-                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }} 
+                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }}
               />
             </motion.div>
           )}
 
           {step === 'feedback' && (
             <motion.div key="feedback" className="flex-1 flex flex-col justify-center">
-              <FeedbackScreen 
-                onSubmit={handleFeedbackSubmit} 
+              <FeedbackScreen
+                onSubmit={handleFeedbackSubmit}
                 logo={clientProfile?.logo}
-                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }} 
+                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }}
               />
             </motion.div>
           )}
 
           {step === 'keywords' && (
             <motion.div key="keywords" className="flex-1 flex flex-col justify-center">
-              <KeywordScreen 
-                onNext={handleKeywordsSubmit} 
+              <KeywordScreen
+                onNext={handleKeywordsSubmit}
                 customQuestions={clientProfile?.questions}
                 logo={clientProfile?.logo}
-                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }} 
+                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }}
               />
             </motion.div>
           )}
 
           {step === 'ai_review' && (
             <motion.div key="ai_review" className="flex-1 flex flex-col justify-center">
-              <AiReviewScreen 
-                selectedKeywords={keywords} 
-                onPostGoogle={handlePostGoogle} 
+              <AiReviewScreen
+                selectedKeywords={keywords}
+                onPostGoogle={handlePostGoogle}
                 businessName={clientProfile?.businessName}
                 clientKeywords={clientProfile?.keywords}
-                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }} 
+                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }}
               />
             </motion.div>
           )}
