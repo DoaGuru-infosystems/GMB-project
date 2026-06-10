@@ -127,11 +127,10 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
     setPhase('generating');
 
     try {
-      // clientKeywords can now be an Array (from backend) or string — normalize
-      const clientKwStr = Array.isArray(clientKeywords) ? clientKeywords.join(', ') : (clientKeywords || '');
-      const contextKeywords = [clientKwStr, ...selectedKeywords].filter(Boolean).join(', ');
+      // Only send customer-selected keywords to AI — not all admin keywords
+      const contextKeywords = selectedKeywords.filter(Boolean).join(', ');
       console.log('[AiReviewScreen] businessName prop:', businessName);
-      console.log('[AiReviewScreen] contextKeywords:', contextKeywords);
+      console.log('[AiReviewScreen] contextKeywords (selected only):', contextKeywords);
       
       // Make API call (with backend 6s timeout implemented)
       const data = await reviewService.generateReview(contextKeywords, businessName, langKey);
