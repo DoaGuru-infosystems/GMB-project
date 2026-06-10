@@ -107,7 +107,10 @@ exports.updateClient = async (req, res) => {
         db.query(query, params, (err) => {
             if (err) {
                 console.error("DB Error updating client:", err);
-                return res.status(500).json({ message: "Error updating client" });
+                if (err.code === 'ER_DUP_ENTRY') {
+                    return res.status(400).json({ message: "Client with this email already exists" });
+                }
+                return res.status(500).json({ message: "Error updating client", error: err.message });
             }
             res.json({ message: "Client updated successfully" });
         });

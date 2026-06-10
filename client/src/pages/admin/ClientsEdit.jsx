@@ -68,7 +68,8 @@ const ClientsEdit = () => {
           websiteUrl: client.websiteUrl || '',
           primaryColor: client.primaryColor || '#3b82f6',
           secondaryColor: client.secondaryColor || '#2dd4bf',
-          questions: Array.isArray(client.questions) ? client.questions : []
+          questions: Array.isArray(client.questions) ? client.questions : [],
+          logo: client.logo || ''
         });
       }
     }
