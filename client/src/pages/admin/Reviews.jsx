@@ -187,8 +187,10 @@ const ReviewsPage = () => {
               >
                 <option value="all">All Clients</option>
                 <option value="admin">DOAGuru Reviews</option>
-                {clients.map(c => (
-                  <option key={c.clientId} value={c.clientId}>{c.businessName}</option>
+                {Array.from(new Set(clients.map(c => c.businessName)))
+                  .filter(Boolean)
+                  .map((businessName, idx) => (
+                  <option key={idx} value={businessName}>{businessName}</option>
                 ))}
               </select>
             )}

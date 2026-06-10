@@ -57,10 +57,14 @@ export const reviewService = {
     }
   },
 
-  getAllReviews: async (clientId, dateRange, startDate, endDate, page = 1, limit = 10, rating) => {
+  getAllReviews: async (selectedClient, dateRange, startDate, endDate, page = 1, limit = 10, rating) => {
     try {
       const params = {};
-      if (clientId && clientId !== 'all') params.clientId = clientId;
+      if (selectedClient === 'admin') {
+        params.clientId = 'admin';
+      } else if (selectedClient && selectedClient !== 'all') {
+        params.businessName = selectedClient;
+      }
       if (dateRange) params.dateRange = dateRange;
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
