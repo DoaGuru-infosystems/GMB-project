@@ -1,13 +1,14 @@
 import axios from 'axios';
 
 const resolveBaseUrl = () => {
+  // return 'http://localhost:8080';
   return 'https://gmb.doaguru.com';
 };
 
 // Root server URL (for images, uploads, etc.) — change port/domain only in .env VITE_API_URL
 export const BASE_URL = resolveBaseUrl();
 
-const API_URL = `${BASE_URL}/api`;
+const API_URL = `${BASE_URL}/api`; // API endpoint
 
 // Create axios instance with base configuration
 const api = axios.create({

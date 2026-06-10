@@ -23,7 +23,7 @@ exports.generateQRCode = async (req, res) => {
                 businessDetails = {
                     businessName: rows[0].businessName || businessDetails.businessName,
                     logo: rows[0].logo || null,
-                    websiteUrl: rows[0].websiteUrl || businessDetails.websiteUrl
+                    websiteUrl: rows[0].websiteUrl || (rows[0].businessName ? `www.${rows[0].businessName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com` : businessDetails.websiteUrl)
                 };
             }
         }

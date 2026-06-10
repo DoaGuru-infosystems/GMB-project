@@ -103,7 +103,7 @@ const LOADING_STEPS = [
   "Formatting review style..."
 ];
 
-const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKeywords }) => {
+const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKeywords, websiteUrl, onPrivateFeedback }) => {
   const [phase, setPhase] = useState('select'); // 'select' | 'generating' | 'ready'
   const [selectedLang, setSelectedLang] = useState(null);
   const [reviewText, setReviewText] = useState('');
@@ -439,10 +439,15 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
       <div className="text-center mt-auto pt-6 border-t border-slate-100">
         <p className="text-[13px] text-slate-400 mb-1">
           If you have concerns you wish to address privately,{' '}
-          <a href="https://doaguru.com" target="_blank" rel="noopener noreferrer" className="text-[#007aff] cursor-pointer hover:underline font-bold">click here.</a>
+          <button 
+            onClick={onPrivateFeedback}
+            className="text-[#007aff] cursor-pointer hover:underline font-bold bg-transparent border-none p-0 inline-block align-baseline"
+          >
+            click here.
+          </button>
         </p>
         <p className="text-[13px] text-slate-400 font-semibold">
-          Powered by <a href="https://doaguru.com" target="_blank" rel="noopener noreferrer" className="text-[#007aff] font-bold hover:underline">DOAGuru InfoSystems ⚡</a>
+          Powered by <a href={websiteUrl ? (websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`) : "https://doaguru.com"} target="_blank" rel="noopener noreferrer" className="text-[#007aff] font-bold hover:underline">{businessName || "DOAGuru InfoSystems"} ⚡</a>
         </p>
       </div>
     </motion.div>

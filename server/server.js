@@ -14,26 +14,8 @@ const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const ensureSubscriptionSchema = require("./utils/ensureSubscriptionSchema");
 app.use(cors({
     origin: function (origin, callback) {
-        // If no origin (like direct API requests, mobile apps, or local files), allow it
-        if (!origin) {
-            return callback(null, true);
-        }
-
-        const allowedOrigins = [/^http:\/\/localhost:\d+$/, /^http:\/\/127\.0\.0\.1:\d+$/, /^http:\/\/192\.168\.\d+\.\d+:\d+$/];
-        let isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
-
-        // Also allow domains specified in the CLIENT_URL env variable (can be comma-separated list)
-        if (!isAllowed && process.env.CLIENT_URL) {
-            const configuredOrigins = process.env.CLIENT_URL.split(",").map(url => url.trim());
-            isAllowed = configuredOrigins.includes(origin) || configuredOrigins.some(url => origin.startsWith(url));
-        }
-
-        if (isAllowed) {
-            callback(null, origin);
-        } else {
-            console.error(`CORS Blocked for origin: ${origin}`);
-            callback(new Error('Origin not allowed by CORS'));
-        }
+        // Automatically allow any origin dynamically to make it completely zero-config
+        callback(null, origin || true);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

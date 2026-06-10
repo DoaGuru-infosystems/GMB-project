@@ -150,7 +150,7 @@ const QRCodeDisplay = ({ targetUrl, qrCodeDataUrl = null, businessName = "Busine
             </div>
 
             <p className="text-lg font-black text-[#001f5c] mb-6 tracking-tight">
-              {websiteUrl || "www.doaguru.com"}
+              {websiteUrl || (businessName && businessName !== "Business Name" && businessName !== "DOAGuru InfoSystems" ? `www.${businessName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com` : "www.doaguru.com")}
             </p>
 
             <div id="qr-gradient-border" className="relative p-6 mb-8 rounded-[2.5rem]" style={{ border: '4px solid #ff7e33' }}>

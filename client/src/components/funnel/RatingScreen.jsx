@@ -14,7 +14,7 @@ const ratingTexts = {
   5: "Excellent"
 };
 
-const RatingScreen = ({ onRatingSelect, logo: clientLogo }) => {
+const RatingScreen = ({ onRatingSelect, logo: clientLogo, businessName, websiteUrl }) => {
   const [hoverRating, setHoverRating] = useState(0);
 
   const isValidLogo = clientLogo && 
@@ -37,7 +37,7 @@ const RatingScreen = ({ onRatingSelect, logo: clientLogo }) => {
       className="flex flex-col flex-1"
     >
       <div className="flex justify-center mb-8">
-        <img src={logoSrc} alt="DOAGuru Logo" className="h-28 w-auto object-contain" />
+        <img src={logoSrc} alt={`${businessName || 'Business'} Logo`} className="h-28 w-auto object-contain" />
       </div>
 
       <div className="space-y-4 mb-10 text-left px-2">
@@ -74,7 +74,7 @@ const RatingScreen = ({ onRatingSelect, logo: clientLogo }) => {
 
       <div className="mt-8 text-center pb-6">
         <p className="text-[13px] text-slate-500">
-          Powered by <a href="https://doaguru.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 font-medium hover:underline">Doaguru InfoSystems ⚡</a>
+          Powered by <a href={websiteUrl ? (websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`) : "https://doaguru.com"} target="_blank" rel="noopener noreferrer" className="text-blue-500 font-medium hover:underline">{businessName || "Doaguru InfoSystems"} ⚡</a>
         </p>
       </div>
     </motion.div>

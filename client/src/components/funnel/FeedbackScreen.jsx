@@ -7,7 +7,7 @@ import logo from '../../assets/logonew.png';
 
 import { BASE_URL } from '../../services/api';
 
-const FeedbackScreen = ({ onSubmit, logo: clientLogo }) => {
+const FeedbackScreen = ({ onSubmit, logo: clientLogo, businessName }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const handleFormSubmit = (data) => {
@@ -34,7 +34,7 @@ const FeedbackScreen = ({ onSubmit, logo: clientLogo }) => {
       className="flex flex-col flex-1"
     >
       <div className="flex justify-center mb-8">
-        <img src={logoSrc} alt="DOAGuru Logo" className="h-28 w-auto object-contain" />
+        <img src={logoSrc} alt={`${businessName || 'Business'} Logo`} className="h-28 w-auto object-contain" />
       </div>
 
       <div className="space-y-3 mb-6 text-left px-2">

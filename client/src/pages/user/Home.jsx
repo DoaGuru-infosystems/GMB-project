@@ -114,7 +114,10 @@ const Home = () => {
               <RatingScreen
                 onRatingSelect={handleRatingSelect}
                 logo={clientProfile?.logo}
-                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }}
+
+                businessName={clientProfile?.businessName}
+                websiteUrl={clientProfile?.websiteUrl}
+                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }} 
               />
             </motion.div>
           )}
@@ -124,7 +127,8 @@ const Home = () => {
               <FeedbackScreen
                 onSubmit={handleFeedbackSubmit}
                 logo={clientProfile?.logo}
-                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }}
+                businessName={clientProfile?.businessName}
+                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }} 
               />
             </motion.div>
           )}
@@ -147,14 +151,22 @@ const Home = () => {
                 onPostGoogle={handlePostGoogle}
                 businessName={clientProfile?.businessName}
                 clientKeywords={clientProfile?.keywords}
-                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }}
+
+                websiteUrl={clientProfile?.websiteUrl}
+                onPrivateFeedback={() => setStep('feedback')}
+                colors={{ primary: clientProfile?.primaryColor, secondary: clientProfile?.secondaryColor }} 
+
               />
             </motion.div>
           )}
 
           {step === 'thank_you' && (
             <motion.div key="thank_you" className="flex-1 flex flex-col justify-center">
-              <ThankYouScreen />
+              <ThankYouScreen 
+                logo={clientProfile?.logo}
+                businessName={clientProfile?.businessName}
+                websiteUrl={clientProfile?.websiteUrl}
+              />
             </motion.div>
           )}
         </AnimatePresence>

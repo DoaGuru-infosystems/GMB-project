@@ -4,8 +4,19 @@ import { motion } from 'framer-motion';
 import { CheckCircle, Share2, Home } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import logo from '../../assets/logonew.png';
+import { BASE_URL } from '../../services/api';
 
-const ThankYouScreen = () => {
+const ThankYouScreen = ({ logo: clientLogo, businessName, websiteUrl }) => {
+  const isValidLogo = clientLogo && 
+                      clientLogo !== 'null' && 
+                      clientLogo !== 'undefined' && 
+                      clientLogo !== '' && 
+                      !clientLogo.endsWith('undefined') && 
+                      !clientLogo.endsWith('null');
+
+  const logoSrc = isValidLogo 
+    ? (clientLogo.startsWith('http') ? clientLogo : `${BASE_URL}${clientLogo.startsWith('/') ? '' : '/'}${clientLogo}`) 
+    : logo;
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -14,7 +25,7 @@ const ThankYouScreen = () => {
       className="flex flex-col flex-1"
     >
       <div className="flex justify-center mb-8">
-        <img src={logo} alt="DOAGuru Logo" className="h-28 w-auto object-contain" />
+        <img src={logoSrc} alt={`${businessName || 'Business'} Logo`} className="h-28 w-auto object-contain" />
       </div>
 
       <div className="space-y-4 text-left px-2 mb-12">
@@ -28,7 +39,7 @@ const ThankYouScreen = () => {
 
       <div className="mt-8 text-center pb-6">
         <p className="text-[13px] text-slate-500">
-          Powered by <a href="https://doaguru.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 font-medium hover:underline">Doaguru InfoSystems ⚡</a>
+          Powered by <a href={websiteUrl ? (websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`) : "https://doaguru.com"} target="_blank" rel="noopener noreferrer" className="text-blue-500 font-medium hover:underline">{businessName || "Doaguru InfoSystems"} ⚡</a>
         </p>
       </div>
     </motion.div>
