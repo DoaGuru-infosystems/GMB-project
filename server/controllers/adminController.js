@@ -19,7 +19,7 @@ exports.createClient = async (req, res) => {
 
         db.query(
             query,
-            [clientId, name, businessName, keywords, email, mobile, hashed, placeId, logo, req.body.websiteUrl, primaryColor || '#3b82f6', secondaryColor || '#2dd4bf', JSON.stringify(questions || []), true], // Default active
+            [clientId, name, businessName, JSON.stringify(Array.isArray(keywords) ? keywords : (keywords ? keywords.split(',').map(k => k.trim()).filter(Boolean) : [])), email, mobile, hashed, placeId, logo, req.body.websiteUrl, primaryColor || '#3b82f6', secondaryColor || '#2dd4bf', JSON.stringify(questions || []), true], // Default active
             (err) => {
                 if (err) {
                     console.error("DB Error:", err);
@@ -56,6 +56,16 @@ exports.getClients = (req, res) => {
                     safeData.questions = [];
                 }
             }
+            if (safeData.keywords && typeof safeData.keywords === 'string') {
+                try {
+                    const parsed = JSON.parse(safeData.keywords);
+                    safeData.keywords = Array.isArray(parsed) ? parsed : safeData.keywords.split(',').map(k => k.trim()).filter(Boolean);
+                } catch (e) {
+                    safeData.keywords = safeData.keywords.split(',').map(k => k.trim()).filter(Boolean);
+                }
+            } else if (!safeData.keywords) {
+                safeData.keywords = [];
+            }
             return safeData;
         });
 
@@ -84,13 +94,14 @@ exports.updateClient = async (req, res) => {
     let password = req.body.password;
 
     try {
+        const keywordsJson = JSON.stringify(Array.isArray(keywords) ? keywords : (keywords ? keywords.split(',').map(k => k.trim()).filter(Boolean) : []));
         let query = "UPDATE clients SET name=?, businessName=?, keywords=?, email=?, mobile=?, placeId=?, logo=?, websiteUrl=?, primaryColor=?, secondaryColor=?, questions=? WHERE clientId=?";
-        let params = [name, businessName, keywords, email, mobile, placeId, logo, req.body.websiteUrl, primaryColor, secondaryColor, JSON.stringify(questions || []), clientId];
+        let params = [name, businessName, keywordsJson, email, mobile, placeId, logo, req.body.websiteUrl, primaryColor, secondaryColor, JSON.stringify(questions || []), clientId];
 
         if (password) {
             const hashed = await bcrypt.hash(password, 10);
             query = "UPDATE clients SET name=?, businessName=?, keywords=?, email=?, mobile=?, password=?, placeId=?, logo=?, websiteUrl=?, primaryColor=?, secondaryColor=?, questions=? WHERE clientId=?";
-            params = [name, businessName, keywords, email, mobile, hashed, placeId, logo, req.body.websiteUrl, primaryColor, secondaryColor, JSON.stringify(questions || []), clientId];
+            params = [name, businessName, keywordsJson, email, mobile, hashed, placeId, logo, req.body.websiteUrl, primaryColor, secondaryColor, JSON.stringify(questions || []), clientId];
         }
 
         db.query(query, params, (err) => {

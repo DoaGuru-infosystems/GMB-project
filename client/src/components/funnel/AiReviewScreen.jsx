@@ -127,7 +127,9 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
     setPhase('generating');
 
     try {
-      const contextKeywords = [clientKeywords, ...selectedKeywords].filter(Boolean).join(', ');
+      // clientKeywords can now be an Array (from backend) or string — normalize
+      const clientKwStr = Array.isArray(clientKeywords) ? clientKeywords.join(', ') : (clientKeywords || '');
+      const contextKeywords = [clientKwStr, ...selectedKeywords].filter(Boolean).join(', ');
       console.log('[AiReviewScreen] businessName prop:', businessName);
       console.log('[AiReviewScreen] contextKeywords:', contextKeywords);
       

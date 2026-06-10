@@ -4,7 +4,7 @@ import { useClientContext } from '../../context/ClientContext';
 import {
   ArrowLeft, Save, Plus, Trash2, Palette, ListTodo,
   Building, User, Mail, Phone, Lock, Globe, MapPin,
-  CheckCircle, Loader2, Sparkles
+  CheckCircle, Loader2, Sparkles, X
 } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { BASE_URL } from '../../services/api';
@@ -16,12 +16,13 @@ const ClientsEdit = () => {
   const [logoFile, setLogoFile] = useState(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [keywordTags, setKeywordTags] = useState([]);
+  const [keywordInput, setKeywordInput] = useState('');
 
   const { register, handleSubmit, control, reset, watch, setValue, formState: { isSubmitting, errors } } = useForm({
     defaultValues: {
       name: '',
       businessName: '',
-      keywords: '',
       email: '',
       mobile: '',
       password: '',
@@ -52,13 +53,17 @@ const ClientsEdit = () => {
       const client = clients.find(c => c.clientId === clientId);
       if (client) {
         setIsEdit(true);
+        // keywords: always use as Array
+        const kws = Array.isArray(client.keywords)
+          ? client.keywords
+          : (client.keywords ? client.keywords.split(',').map(k => k.trim()).filter(Boolean) : []);
+        setKeywordTags(kws);
         reset({
           name: client.name || '',
           businessName: client.businessName || '',
-          keywords: client.keywords || '',
           email: client.email || '',
           mobile: client.mobile || '',
-          password: '', // Empty password for edit
+          password: '',
           placeId: client.placeId || '',
           websiteUrl: client.websiteUrl || '',
           primaryColor: client.primaryColor || '#3b82f6',
@@ -71,15 +76,32 @@ const ClientsEdit = () => {
 
   const onSubmit = async (data) => {
     try {
+      const submitData = { ...data, keywords: keywordTags };
       if (isEdit) {
-        await updateClient(clientId, data, logoFile, setUploadingLogo);
+        await updateClient(clientId, submitData, logoFile, setUploadingLogo);
       } else {
-        await createClient(data, logoFile, setUploadingLogo);
+        await createClient(submitData, logoFile, setUploadingLogo);
       }
       navigate('/admin/clients');
     } catch (err) {
       alert(`Failed to ${isEdit ? 'update' : 'create'} client: ` + err.message);
     }
+  };
+
+  // --- Keyword Tag Handlers ---
+  const handleKeywordKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const val = keywordInput.trim().replace(/,$/, '');
+      if (val && !keywordTags.includes(val)) {
+        setKeywordTags([...keywordTags, val]);
+      }
+      setKeywordInput('');
+    }
+  };
+
+  const removeKeywordTag = (idx) => {
+    setKeywordTags(keywordTags.filter((_, i) => i !== idx));
   };
 
   const addOption = (qIndex) => {
@@ -153,14 +175,31 @@ const ClientsEdit = () => {
 
               <div className="space-y-2">
                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Target Keywords</label>
-                <div className="relative">
-                  <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <div className="w-full min-h-[48px] pl-4 pr-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 focus-within:bg-white focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all flex flex-wrap gap-2 items-center">
+                  <Sparkles className="text-slate-300 shrink-0" size={18} />
+                  {keywordTags.map((tag, idx) => (
+                    <span key={idx} className="flex items-center gap-1 bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-lg">
+                      {tag}
+                      <button type="button" onClick={() => removeKeywordTag(idx)} className="hover:text-red-500 transition-colors ml-0.5">
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
                   <input
-                    {...register('keywords')}
-                    className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-bold"
-                    placeholder="e.g. Best IT Company, Web Development"
+                    type="text"
+                    value={keywordInput}
+                    onChange={(e) => setKeywordInput(e.target.value)}
+                    onKeyDown={handleKeywordKeyDown}
+                    onBlur={() => {
+                      const val = keywordInput.trim();
+                      if (val && !keywordTags.includes(val)) setKeywordTags([...keywordTags, val]);
+                      setKeywordInput('');
+                    }}
+                    className="flex-1 min-w-[120px] bg-transparent outline-none font-bold text-sm placeholder-slate-300"
+                    placeholder={keywordTags.length === 0 ? 'e.g. Best IT Company (Enter ya comma se add karo)' : 'Add more...'}
                   />
                 </div>
+                <p className="text-[10px] text-slate-400 ml-1">Enter ya comma dabakar keyword add karo</p>
               </div>
 
               <div className="space-y-2">

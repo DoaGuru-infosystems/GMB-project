@@ -18,6 +18,16 @@ exports.getClientProfile = (req, res) => {
                 client.questions = [];
             }
         }
+        if (client.keywords && typeof client.keywords === 'string') {
+            try {
+                const parsed = JSON.parse(client.keywords);
+                client.keywords = Array.isArray(parsed) ? parsed : client.keywords.split(',').map(k => k.trim()).filter(Boolean);
+            } catch (e) {
+                client.keywords = client.keywords.split(',').map(k => k.trim()).filter(Boolean);
+            }
+        } else if (!client.keywords) {
+            client.keywords = [];
+        }
         res.json(client);
     });
 };
@@ -26,13 +36,15 @@ exports.updateClientProfile = (req, res) => {
     const clientId = req.user.clientId || req.user.clientID;
     const { name, businessName, mobile, logo, keywords, placeId } = req.body;
 
+    const keywordsJson = JSON.stringify(Array.isArray(keywords) ? keywords : (keywords ? keywords.split(',').map(k => k.trim()).filter(Boolean) : []));
+
     const query = `
         UPDATE clients
         SET name = ?, businessName = ?, mobile = ?, logo = ?, keywords = ?, placeId = ?, updatedAt = NOW()
         WHERE clientId = ?
     `;
 
-    db.query(query, [name, businessName, mobile, logo, keywords, placeId, clientId], (err) => {
+    db.query(query, [name, businessName, mobile, logo, keywordsJson, placeId, clientId], (err) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ message: "Update failed" });
@@ -157,6 +169,16 @@ exports.getPublicClientProfile = (req, res) => {
             } catch (e) {
                 client.questions = [];
             }
+        }
+        if (client.keywords && typeof client.keywords === 'string') {
+            try {
+                const parsed = JSON.parse(client.keywords);
+                client.keywords = Array.isArray(parsed) ? parsed : client.keywords.split(',').map(k => k.trim()).filter(Boolean);
+            } catch (e) {
+                client.keywords = client.keywords.split(',').map(k => k.trim()).filter(Boolean);
+            }
+        } else if (!client.keywords) {
+            client.keywords = [];
         }
         res.json(client);
     });

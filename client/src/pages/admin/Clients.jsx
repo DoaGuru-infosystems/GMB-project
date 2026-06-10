@@ -163,8 +163,10 @@ const Clients = () => {
                     </td>
                     <td className="px-6 py-4 align-top">
                       <div className="pt-1">
-                        <p className="text-[13px] font-medium text-slate-600 italic whitespace-normal max-w-[180px] line-clamp-2" title={client.keywords}>
-                          {client.keywords || "No keywords set"}
+                        <p className="text-[13px] font-medium text-slate-600 italic whitespace-normal max-w-[180px] line-clamp-2" title={Array.isArray(client.keywords) ? client.keywords.join(', ') : client.keywords}>
+                          {Array.isArray(client.keywords) && client.keywords.length > 0
+                            ? client.keywords.join(', ')
+                            : (client.keywords || 'No keywords set')}
                         </p>
                       </div>
                     </td>

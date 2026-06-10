@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/api';
 import { useForm } from 'react-hook-form';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
@@ -63,12 +65,21 @@ const Login = () => {
 
           <div className="flex flex-col gap-1 mb-2">
             <label className="text-xs font-bold text-slate-400 uppercase ml-1">Password</label>
-            <input
-              type="password"
-              {...register("password", { required: "Password is required" })}
-              className={`w-full px-4 py-3 bg-slate-50 border ${errors.password ? 'border-red-300 ring-4 ring-red-50' : 'border-slate-200'} rounded-xl outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium`}
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                {...register("password", { required: "Password is required" })}
+                className={`w-full pl-4 pr-12 py-3 bg-slate-50 border ${errors.password ? 'border-red-300 ring-4 ring-red-50' : 'border-slate-200'} rounded-xl outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium`}
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             {errors.password && <p className="text-red-500 text-[10px] font-bold ml-1 uppercase mt-1">{errors.password.message}</p>}
           </div>
 
