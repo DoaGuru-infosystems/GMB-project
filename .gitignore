@@ -22,7 +22,8 @@ build/
 # OS related files
 .DS_Store
 Thumbs.db
-
+.gitignore
+.graphifyignore
 # Logs
 npm-debug.log*
 yarn-debug.log*
@@ -36,3 +37,5 @@ server/uploads/*
 # Temporary files
 .tmp/
 temp/
+# Graphify cache/temp
+graphify-out/
