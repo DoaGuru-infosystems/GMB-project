@@ -57,13 +57,14 @@ export const reviewService = {
     }
   },
 
-  getAllReviews: async (clientId, dateRange, startDate, endDate, page = 1, limit = 10) => {
+  getAllReviews: async (clientId, dateRange, startDate, endDate, page = 1, limit = 10, rating) => {
     try {
       const params = {};
       if (clientId && clientId !== 'all') params.clientId = clientId;
       if (dateRange) params.dateRange = dateRange;
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
+      if (rating && rating !== 'all') params.rating = rating;
       if (page) params.page = page;
       if (limit) params.limit = limit;
 

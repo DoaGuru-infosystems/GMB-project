@@ -58,7 +58,7 @@ exports.submitReview = (req, res) => {
 // Admin dashboard ke liye
 // Admin dashboard ke liye - Sare reviews with Business Name
 exports.getAllReviews = (req, res) => {
-  const { clientId, dateRange, startDate, endDate, page = 1, limit = 10 } = req.query;
+  const { clientId, dateRange, startDate, endDate, rating, page = 1, limit = 10 } = req.query;
   const offset = (page - 1) * limit;
 
   let query = `
@@ -71,6 +71,11 @@ exports.getAllReviews = (req, res) => {
   if (clientId && clientId !== 'all') {
     query += " AND r.clientId = ?";
     params.push(clientId);
+  }
+
+  if (rating && rating !== 'all') {
+    query += " AND r.rating = ?";
+    params.push(parseInt(rating));
   }
 
   if (dateRange) {

@@ -28,13 +28,14 @@ const ReviewsPage = () => {
   const containerRef = useRef(null);
   const [userRole, setUserRole] = useState(user?.role || null);
   const [selectedClient, setSelectedClient] = useState('all');
+  const [selectedRating, setSelectedRating] = useState('all');
   const [clients, setClients] = useState(contextClients || []);
 
   const searchTerm = watch("searchTerm");
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [emailFilter, selectedClient]);
+  }, [emailFilter, selectedClient, selectedRating]);
 
   // Debouncing logic for search
   useEffect(() => {
@@ -66,8 +67,8 @@ const ReviewsPage = () => {
         // getClientReviews: (type, search, dateRange, startDate, endDate, page, limit)
         response = await clientService.getClientReviews('', emailFilter, '', '', '', currentPage, itemsPerPage);
       } else {
-        // getAllReviews: (clientId, dateRange, startDate, endDate, page, limit)
-        response = await reviewService.getAllReviews(selectedClient, '', '', '', currentPage, itemsPerPage);
+        // getAllReviews: (clientId, dateRange, startDate, endDate, page, limit, rating)
+        response = await reviewService.getAllReviews(selectedClient, '', '', '', currentPage, itemsPerPage, selectedRating);
       }
 
       if (response && response.reviews) {
@@ -86,7 +87,7 @@ const ReviewsPage = () => {
 
   useEffect(() => {
     fetchReviewsData();
-  }, [userRole, selectedClient, emailFilter, currentPage]);
+  }, [userRole, selectedClient, selectedRating, emailFilter, currentPage]);
 
   useGSAP(() => {
     if (!loading) {
@@ -112,7 +113,7 @@ const ReviewsPage = () => {
         const res = await clientService.getClientReviews('', emailFilter, '', '', '', 1, 100000);
         exportData = res.reviews || res;
       } else {
-        const res = await reviewService.getAllReviews(selectedClient, '', '', '', 1, 100000);
+        const res = await reviewService.getAllReviews(selectedClient, '', '', '', 1, 100000, selectedRating);
         exportData = res.reviews || res;
       }
 
@@ -191,6 +192,19 @@ const ReviewsPage = () => {
                 ))}
               </select>
             )}
+
+            <select
+              value={selectedRating}
+              onChange={(e) => setSelectedRating(e.target.value)}
+              className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:ring-4 focus:ring-amber-500/10 transition-all cursor-pointer hover:border-amber-400/50"
+            >
+              <option value="all">⭐ All Ratings</option>
+              <option value="5">⭐ 5 Star</option>
+              <option value="4">⭐ 4 Star</option>
+              <option value="3">⭐ 3 Star</option>
+              <option value="2">⭐ 2 Star</option>
+              <option value="1">⭐ 1 Star</option>
+            </select>
           </div>
 
           <div className="relative w-full sm:w-80">
