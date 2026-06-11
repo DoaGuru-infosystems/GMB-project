@@ -4,8 +4,6 @@ Frontend/client/node_modules/
 server/node_modules/
 
 # Environment Variables
-.env
-.env.local
 .env.*.local
 
 # Build Directories
@@ -14,7 +12,6 @@ Frontend/client/dist/
 build/
 
 # IDE / Editor folders
-.vscode/
 .idea/
 *.swp
 *.swo
@@ -39,3 +36,4 @@ server/uploads/*
 temp/
 # Graphify cache/temp
 graphify-out/
+config.bat
