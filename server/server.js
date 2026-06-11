@@ -4,6 +4,7 @@ require("dotenv").config();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const path = require("path");
+const morgan = require("morgan");
 
 const reviewRoutes = require("./routes/reviewRoutes");
 const authRoutes = require("./routes/authRoutes");
@@ -12,6 +13,8 @@ const adminRoutes = require("./routes/adminRoutes");
 const clientRoutes = require("./routes/clientRoutes");
 const subscriptionRoutes = require("./routes/subscriptionRoutes");
 const ensureSubscriptionSchema = require("./utils/ensureSubscriptionSchema");
+
+app.use(morgan("dev"));
 app.use(cors({
     origin: function (origin, callback) {
         // Automatically allow any origin dynamically to make it completely zero-config

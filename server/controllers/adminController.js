@@ -138,12 +138,13 @@ exports.updateClient = async (req, res) => {
   let password = req.body.password;
 
   try {
+    const keywordsJson = JSON.stringify(Array.isArray(keywords) ? keywords : (keywords ? keywords.split(',').map(k => k.trim()).filter(Boolean) : []));
     let query =
       "UPDATE clients SET name=?, businessName=?, keywords=?, email=?, mobile=?, placeId=?, logo=?, websiteUrl=?, primaryColor=?, secondaryColor=?, questions=? WHERE clientId=?";
     let params = [
       name,
       businessName,
-      JSON.stringify(keywords || []),
+      keywordsJson,
       email,
       mobile,
       placeId,
@@ -162,7 +163,7 @@ exports.updateClient = async (req, res) => {
       params = [
         name,
         businessName,
-        keywords,
+        keywordsJson,
         email,
         mobile,
         hashed,
@@ -179,7 +180,14 @@ exports.updateClient = async (req, res) => {
     db.query(query, params, (err) => {
       if (err) {
         console.error("DB Error updating client:", err);
-        return res.status(500).json({ message: "Error updating client" });
+        if (err.code === "ER_DUP_ENTRY") {
+          return res
+            .status(400)
+            .json({ message: "Client with this email already exists" });
+        }
+        return res
+          .status(500)
+          .json({ message: "Error updating client", error: err.message });
       }
       res.json({ message: "Client updated successfully" });
     });
