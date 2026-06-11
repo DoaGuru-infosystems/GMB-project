@@ -329,7 +329,7 @@ ${antiAiRules}`,
   const apiModel = isCustomKey ? "openai/gpt-3.5-turbo" : "gpt-3.5-turbo";
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 seconds timeout
+  const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 seconds timeout
 
   try {
     const response = await fetch(apiUrl, {
@@ -377,6 +377,15 @@ ${antiAiRules}`,
     res.json({ generatedReview: generatedText });
   } catch (error) {
     console.error("Error generating review:", error);
+
+    // If request was aborted due to timeout, return a clear error
+    if (error.name === "AbortError" || error.message?.includes("abort")) {
+      return res.status(504).json({
+        message: "AI API timed out. Please try again.",
+        error: "timeout",
+      });
+    }
+
     const fallbackKeys = Array.isArray(keywords)
       ? keywords.join(", ")
       : keywords || "great service";
