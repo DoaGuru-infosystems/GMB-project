@@ -90,8 +90,8 @@ const Navbar = () => {
     { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={18} /> },
     { name: 'Reviews', path: '/admin/reviews', icon: <MessageSquare size={18} /> },
     ...(user?.role === 'admin' ? [
-      { name: 'Notifications', path: '/admin/notifications', icon: <Bell size={18} /> },
       { name: 'Clients', path: '/admin/clients', icon: <Users size={18} /> },
+      { name: 'Notifications', path: '/admin/notifications', icon: <Bell size={18} /> },
       { name: 'Subscriptions', path: '/admin/subscriptions', icon: <CreditCard size={18} /> }
     ] : []),
     { name: 'QR Codes', path: '/admin/qrcode', icon: <QrCode size={18} /> },
@@ -104,27 +104,29 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50/50 font-sans text-slate-900">
+    <div className="flex min-h-screen font-sans text-slate-900 bg-slate-50" style={{
+      backgroundImage: `radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.015) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.015) 0px, transparent 50%)`
+    }}>
 
       {/* ── Overlay ── */}
       <div
-        className={`fixed inset-0 bg-slate-900/60 z-[100] lg:hidden backdrop-blur-sm transition-all duration-300 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 bg-slate-900/40 z-[100] lg:hidden backdrop-blur-sm transition-all duration-300 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setIsMobileMenuOpen(false)}
       />
 
       {/* ── Sidebar ── */}
       <aside
         ref={sidebarRef}
-        className={`bg-white border-r border-slate-200 flex flex-col fixed h-screen z-[110] transition-all duration-300 ease-in-out
+        className={`bg-white/80 backdrop-blur-md border-r border-slate-100 flex flex-col fixed h-screen z-[110] transition-all duration-300 ease-in-out
           ${isMobileMenuOpen ? 'translate-x-0 w-[280px]' : '-translate-x-full w-[280px] lg:translate-x-0'} 
           ${isDesktopSidebarOpen ? 'lg:w-[260px]' : 'lg:w-0 lg:border-none'}`}
       >
-        <div className="p-4 border-b border-slate-200 flex justify-between items-center h-20 shrink-0 overflow-hidden bg-slate-50/30">
+        <div className="p-4 border-b border-slate-100 flex justify-between items-center h-20 shrink-0 overflow-hidden bg-slate-50/20">
           <div className={`flex items-center gap-3 transition-opacity duration-300 ${isDesktopSidebarOpen || isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="w-10 h-10 rounded-xl shadow-md flex items-center justify-center bg-white border border-slate-100 shrink-0 overflow-hidden">
+            <div className="w-10 h-10 rounded-xl shadow-[0_4px_12px_rgba(59,130,246,0.08)] flex items-center justify-center bg-white border border-slate-100 shrink-0 overflow-hidden">
               <img src={logo} alt="Logo" className="w-7 h-7 object-contain" />
             </div>
-            <h2 className="text-xl font-black tracking-tight text-slate-900 whitespace-nowrap">ReviewFlow</h2>
+            <h2 className="text-xl font-black tracking-tight text-slate-900 whitespace-nowrap bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 bg-clip-text text-transparent">ReviewFlow</h2>
           </div>
 
           <button
@@ -143,15 +145,22 @@ const Navbar = () => {
                 <NavLink
                   to={item.path}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all text-sm whitespace-nowrap ${isActive ? 'text-white shadow-md' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
-                  style={({ isActive }) => isActive ? { backgroundColor: branding.primary, boxShadow: `0 10px 15px -3px ${branding.primary}33` } : {}}
+                  className={({ isActive }) => `flex items-center gap-3 px-4 py-2.5 rounded-xl font-bold transition-all duration-200 text-sm whitespace-nowrap ${
+                    isActive 
+                      ? 'text-white shadow-md hover:scale-[1.02] active:scale-[0.98]' 
+                      : 'text-slate-500 hover:bg-slate-50/70 hover:text-slate-900 hover:translate-x-1 active:translate-x-0'
+                  }`}
+                  style={({ isActive }) => isActive ? { 
+                    backgroundColor: branding.primary, 
+                    boxShadow: `0 8px 20px -3px ${branding.primary}44` 
+                  } : {}}
                 >
                   {({ isActive }) => (
                     <>
-                      <div className="shrink-0" style={{ color: isActive ? 'white' : branding.primary }}>{item.icon}</div>
+                      <div className="shrink-0 transition-colors duration-200" style={{ color: isActive ? 'white' : branding.primary }}>{item.icon}</div>
                       <span>{item.name}</span>
                       {item.name === 'Notifications' && unreadCount > 0 && (
-                        <span className={`ml-auto w-4.5 h-4.5 text-[10px] font-black flex items-center justify-center rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-red-500 text-white'}`}>
+                        <span className={`ml-auto px-2 py-0.5 text-[10px] font-black flex items-center justify-center rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-red-500 text-white'}`}>
                           {unreadCount}
                         </span>
                       )}
@@ -163,10 +172,10 @@ const Navbar = () => {
           </ul>
         </nav>
 
-        <div className={`p-4 border-t border-slate-200 transition-opacity duration-200 ${isDesktopSidebarOpen || isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`p-4 border-t border-slate-100 transition-opacity duration-200 ${isDesktopSidebarOpen || isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}>
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all w-full text-left text-slate-500 hover:bg-red-50 hover:text-red-600 text-sm"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all w-full text-left text-slate-500 hover:bg-rose-50 hover:text-rose-600 text-sm"
           >
             <LogOut size={18} />
             <span>Sign Out</span>
@@ -175,8 +184,8 @@ const Navbar = () => {
       </aside>
 
       {/* ── Main Content ── */}
-      <main className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${isDesktopSidebarOpen ? 'lg:ml-[260px]' : 'ml-0'}`}>
-        <div className="h-20 bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-[50] shadow-sm">
+      <main className={`flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-300 ${isDesktopSidebarOpen ? 'lg:ml-[260px]' : 'ml-0'}`}>
+        <div className="h-20 bg-white/70 backdrop-blur-lg border-b border-slate-100 flex items-center justify-between px-4 md:px-8 sticky top-0 z-[50] shadow-[0_2px_15px_rgba(0,0,0,0.01)]">
 
           <div className="flex items-center gap-3">
             <button
@@ -235,13 +244,13 @@ const Navbar = () => {
               </div>
             )}
 
-            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 overflow-hidden shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-white border border-slate-150 overflow-hidden shadow-md ring-4 ring-primary/5 hover:ring-primary/15 transition-all duration-300">
               <img
                 src={user?.role === 'client' && user?.logo
                   ? (user.logo.startsWith('http') ? user.logo : `${BASE_URL}${user.logo.startsWith('/') ? '' : '/'}${user.logo}`)
                   : logo}
                 alt="Logo"
-                className="w-full h-full object-contain p-1"
+                className="w-full h-full object-contain p-1.5"
               />
             </div>
           </div>

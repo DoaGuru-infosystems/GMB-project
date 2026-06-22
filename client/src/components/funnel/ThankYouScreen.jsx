@@ -5,7 +5,7 @@ import { CheckCircle, Share2, Home } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import logo from '../../assets/logonew.png';
 
-const ThankYouScreen = () => {
+const ThankYouScreen = ({ businessName, websiteUrl }) => {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -28,7 +28,7 @@ const ThankYouScreen = () => {
 
       <div className="mt-8 text-center pb-6">
         <p className="text-[13px] text-slate-500">
-          Powered by <a href="https://doaguru.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 font-medium hover:underline">Doaguru InfoSystems ⚡</a>
+          Powered by <a href={websiteUrl ? (websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`) : "https://doaguru.com"} target="_blank" rel="noopener noreferrer" className="text-blue-500 font-medium hover:underline">{businessName || "Doaguru InfoSystems"} ⚡</a>
         </p>
       </div>
     </motion.div>

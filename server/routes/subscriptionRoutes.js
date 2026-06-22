@@ -2,17 +2,6 @@ const express = require("express");
 const router = express.Router();
 const subscriptionController = require("../controllers/subscriptionController");
 const authMiddleware = require("../middleware/authMiddleware");
-const ensureSubscriptionSchema = require("../utils/ensureSubscriptionSchema");
-
-router.use(async (req, res, next) => {
-  try {
-    await ensureSubscriptionSchema();
-    next();
-  } catch (error) {
-    console.error("Subscription schema setup error:", error);
-    res.status(500).json({ message: "Subscription setup failed" });
-  }
-});
 
 // Public routes
 router.get("/plans", subscriptionController.getSubscriptionPlans);
@@ -35,5 +24,10 @@ router.get("/admin/history/:clientId", authMiddleware(["admin"]), subscriptionCo
 router.put("/cancel/:subscriptionId", authMiddleware(["admin"]), subscriptionController.cancelSubscription);
 
 router.put("/renew/:subscriptionId", authMiddleware(["admin"]), subscriptionController.renewSubscription);
+
+// Admin routes for plans CRUD
+router.post("/admin/plans", authMiddleware(["admin"]), subscriptionController.createSubscriptionPlan);
+router.put("/admin/plans/:planId", authMiddleware(["admin"]), subscriptionController.updateSubscriptionPlan);
+router.delete("/admin/plans/:planId", authMiddleware(["admin"]), subscriptionController.deleteSubscriptionPlan);
 
 module.exports = router;

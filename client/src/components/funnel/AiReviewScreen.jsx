@@ -3,6 +3,65 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { reviewService } from '../../services/api';
 import { Star, Sparkles, ChevronRight, Check } from 'lucide-react';
 
+const UKFlag = () => (
+  <svg viewBox="0 0 60 60" className="w-12 h-12 rounded-full shadow-sm select-none shrink-0">
+    <clipPath id="circleClip">
+      <circle cx="30" cy="30" r="30" />
+    </clipPath>
+    <g clipPath="url(#circleClip)">
+      <rect width="60" height="60" fill="#012169" />
+      <line x1="0" y1="0" x2="60" y2="60" stroke="#ffffff" strokeWidth="6" />
+      <line x1="60" y1="0" x2="0" y2="60" stroke="#ffffff" strokeWidth="6" />
+      <line x1="0" y1="0" x2="60" y2="60" stroke="#C8102E" strokeWidth="4" />
+      <line x1="60" y1="0" x2="0" y2="60" stroke="#C8102E" strokeWidth="4" />
+      <line x1="30" y1="0" x2="30" y2="60" stroke="#ffffff" strokeWidth="10" />
+      <line x1="0" y1="30" x2="60" y2="30" stroke="#ffffff" strokeWidth="10" />
+      <line x1="30" y1="0" x2="30" y2="60" stroke="#C8102E" strokeWidth="6" />
+      <line x1="0" y1="30" x2="60" y2="30" stroke="#C8102E" strokeWidth="6" />
+    </g>
+  </svg>
+);
+
+const IndiaFlag = () => (
+  <svg viewBox="0 0 60 60" className="w-12 h-12 rounded-full shadow-sm select-none shrink-0">
+    <clipPath id="circleClipIndia">
+      <circle cx="30" cy="30" r="30" />
+    </clipPath>
+    <g clipPath="url(#circleClipIndia)">
+      <rect x="0" y="0" width="60" height="20" fill="#FF9933" />
+      <rect x="0" y="20" width="60" height="20" fill="#FFFFFF" />
+      <rect x="0" y="40" width="60" height="20" fill="#138808" />
+      <circle cx="30" cy="30" r="7" stroke="#000080" strokeWidth="1" fill="none" />
+      <circle cx="30" cy="30" r="1.5" fill="#000080" />
+      {[...Array(24)].map((_, index) => {
+        const angle = (index * 360) / 24;
+        const rad = (angle * Math.PI) / 180;
+        const x2 = 30 + 7 * Math.cos(rad);
+        const y2 = 30 + 7 * Math.sin(rad);
+        return (
+          <line
+            key={index}
+            x1="30"
+            y1="30"
+            x2={x2}
+            y2={y2}
+            stroke="#000080"
+            strokeWidth="0.5"
+          />
+        );
+      })}
+    </g>
+  </svg>
+);
+
+const HinglishIcon = () => (
+  <div className="w-12 h-12 rounded-full bg-[#00bda5] flex items-center justify-center text-white shadow-sm select-none shrink-0">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-white">
+      <path d="m18 8 2 2c1.1.9 1.2 2.5.3 3.5l-6.8 6.8a3 3 0 0 1-4.2 0l-2.9-2.9a3 3 0 0 1 0-4.2l3.4-3.4c.9-.9 2.5-.8 3.5.3l1.2 1.2M2 10l3-3M22 14l-3 3M14 6l3.4-3.4a3 3 0 0 1 4.2 0l.9.9a3 3 0 0 1 0 4.2l-3.4 3.4c-.9.9-2.5.8-3.5-.3l-1.2-1.2" />
+    </svg>
+  </div>
+);
+
 const LANGUAGES = [
   {
     key: 'english',
@@ -47,7 +106,7 @@ const LOADING_STEPS = [
   "Formatting review style..."
 ];
 
-const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKeywords }) => {
+const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKeywords, websiteUrl }) => {
   const [phase, setPhase] = useState('select'); // 'select' | 'generating' | 'ready'
   const [selectedLang, setSelectedLang] = useState(null);
   const [reviewText, setReviewText] = useState('');
@@ -70,7 +129,9 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
     setPhase('generating');
 
     try {
-      const contextKeywords = [clientKeywords, ...selectedKeywords].filter(Boolean).join(', ');
+      const contextKeywords = (selectedKeywords && selectedKeywords.length > 0)
+        ? selectedKeywords.join(', ')
+        : (clientKeywords || 'services');
       console.log('[AiReviewScreen] businessName prop:', businessName);
       console.log('[AiReviewScreen] contextKeywords:', contextKeywords);
       
@@ -128,6 +189,15 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
 
   const langInfo = LANGUAGES.find(l => l.key === selectedLang);
 
+  const formatUrl = (url) => {
+    if (!url) return 'https://doaguru.com';
+    const trimmed = url.trim();
+    if (/^https?:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+    return `https://${trimmed}`;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
@@ -137,12 +207,12 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
       className="flex flex-col flex-1 pt-2 pb-4"
     >
       {/* Header */}
-      <div className="text-left px-2 mb-6">
-        <h2 className="text-[24px] font-black text-[#0f172a] leading-tight mb-1 flex items-center gap-2">
+      <div className="text-center px-2 mb-4">
+        <h2 className="text-[21px] font-black text-[#0f172a] leading-tight mb-0.5 flex items-center justify-center gap-2">
           <span>Share Your Experience</span>
-          <Sparkles className="w-5 h-5 text-amber-500 animate-pulse" />
+          <Sparkles className="w-4.5 h-4.5 text-amber-500 animate-pulse" />
         </h2>
-        <p className="text-slate-500 font-normal text-[15px] leading-relaxed">
+        <p className="text-slate-500 font-normal text-[13.5px] leading-relaxed">
           {phase === 'select'
             ? 'Choose a language for your personalized review.'
             : phase === 'generating'
@@ -162,54 +232,53 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
-              className="flex flex-col gap-4"
+              className="flex flex-col w-full"
             >
-              <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 text-center">
                 Select language option below
               </p>
 
-              {LANGUAGES.map((lang, i) => (
-                <motion.button
-                  key={lang.key}
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.08, type: "spring", stiffness: 120 }}
-                  whileHover={{ 
-                    scale: 1.025, 
-                    boxShadow: `0 12px 24px -10px ${lang.glowColor}`,
-                    y: -3
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleLanguageSelect(lang.key)}
-                  className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl bg-gradient-to-r ${lang.gradient} text-white shadow-lg ${lang.shadow} transition-all relative overflow-hidden group`}
-                >
-                  {/* Glowing background bubble effect */}
-                  <span className="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-all duration-500" />
-                  
-                  {/* Floating Emojis */}
-                  <motion.div 
-                    whileHover={{ rotate: [0, -10, 10, 0] }}
-                    transition={{ duration: 0.4 }}
-                    className="text-4xl z-10 w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner"
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-6 w-full">
+                {LANGUAGES.map((lang, i) => (
+                  <motion.button
+                    key={lang.key}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.08, type: "spring", stiffness: 120 }}
+                    whileHover={{ 
+                      scale: 1.03, 
+                      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05)",
+                      borderColor: "rgba(0, 122, 255, 0.3)",
+                      y: -4
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleLanguageSelect(lang.key)}
+                    className="flex-1 flex flex-col items-center justify-between p-4 sm:p-4.5 bg-white border border-slate-200 rounded-[16px] shadow-sm hover:shadow-md transition-all duration-300 min-h-[175px] sm:min-h-[180px] group cursor-pointer"
                   >
-                    {lang.emoji}
-                  </motion.div>
+                    {/* Top Icon */}
+                    <div className="flex items-center justify-center shrink-0">
+                      {lang.key === 'english' && <UKFlag />}
+                      {lang.key === 'hindi' && <IndiaFlag />}
+                      {lang.key === 'hinglish' && <HinglishIcon />}
+                    </div>
 
-                  <div className="flex flex-col items-start text-left z-10">
-                    <span className="text-[18px] font-black leading-tight flex items-center gap-1.5">
-                      {lang.label}
-                    </span>
-                    <span className="text-[12px] opacity-90 font-semibold">{lang.description}</span>
-                    <span className="text-[11px] opacity-75 mt-0.5 italic bg-black/10 px-2 py-0.5 rounded-md">
-                      {lang.example}
-                    </span>
-                  </div>
+                    {/* Text Details */}
+                    <div className="flex flex-col items-center text-center mt-3 flex-1">
+                      <span className="text-[15px] font-bold text-[#0f172a] leading-tight mb-0.5 select-none">
+                        {lang.label}
+                      </span>
+                      <span className="text-[11px] text-slate-400 font-semibold select-none">
+                        {lang.key === 'hindi' ? 'हिंदी में रिव्यू' : lang.description}
+                      </span>
+                    </div>
 
-                  <div className="ml-auto z-10 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:translate-x-1 transition-all">
-                    <ChevronRight className="w-5 h-5 text-white" />
-                  </div>
-                </motion.button>
-              ))}
+                    {/* Bottom Arrow Button */}
+                    <div className="w-7 h-7 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-[#007aff]/10 group-hover:text-[#007aff] group-hover:border-transparent transition-all mt-3">
+                      <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
             </motion.div>
           )}
 
@@ -223,7 +292,7 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
               className="flex-1 flex flex-col items-center justify-center py-10 px-4 min-h-[300px]"
             >
               {/* Outer Circular Pulse and Glow */}
-              <div className="relative w-28 h-28 flex items-center justify-center mb-8">
+              <div className="relative w-24 h-24 flex items-center justify-center mb-6">
                 {/* Dynamic Glowing Rings */}
                 <motion.div 
                   animate={{ scale: [1, 1.25, 1], opacity: [0.3, 0.6, 0.3] }}
@@ -248,9 +317,9 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
                 <motion.div 
                   animate={{ y: [0, -5, 0] }}
                   transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-16 h-16 rounded-2xl bg-white/80 backdrop-blur-md shadow-2xl flex items-center justify-center z-10 border border-white/40"
+                  className="w-14 h-14 rounded-xl bg-white/80 backdrop-blur-md shadow-2xl flex items-center justify-center z-10 border border-white/40"
                 >
-                  <span className="text-3xl filter drop-shadow-sm">{langInfo?.emoji}</span>
+                  <span className="text-2xl filter drop-shadow-sm">{langInfo?.emoji}</span>
                 </motion.div>
               </div>
 
@@ -262,7 +331,7 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.35 }}
-                  className="text-[#1a2b3c] text-[16px] font-extrabold tracking-tight"
+                  className="text-[#1a2b3c] text-[15px] font-extrabold tracking-tight"
                 >
                   {LOADING_STEPS[currentStepIndex]}
                 </motion.p>
@@ -308,7 +377,7 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
               </p>
 
               {/* Premium Review Textarea Wrapper */}
-              <div className={`w-full border-2 rounded-2xl bg-slate-50/50 backdrop-blur-sm px-4 py-4 mb-5 ring-2 ring-offset-2 ${langInfo?.ring || 'ring-blue-400'} ring-opacity-20 border-slate-200 shadow-inner relative transition-all`}>
+              <div className={`w-full border rounded-xl bg-slate-50/50 backdrop-blur-sm px-3.5 py-3 mb-4 ring-2 ring-offset-2 ${langInfo?.ring || 'ring-blue-400'} ring-opacity-20 border-slate-200 shadow-inner relative transition-all`}>
                 <textarea
                   ref={(el) => {
                     if (el) {
@@ -322,7 +391,7 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
                     e.target.style.height = 'auto';
                     e.target.style.height = e.target.scrollHeight + 'px';
                   }}
-                  className="w-full text-[15px] text-[#1e293b] font-semibold leading-relaxed bg-transparent outline-none resize-none overflow-hidden"
+                  className="w-full text-[14px] text-[#1e293b] font-semibold leading-relaxed bg-transparent outline-none resize-none overflow-hidden"
                   placeholder="Your review will appear here..."
                 />
               </div>
@@ -332,7 +401,7 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
                 whileHover={{ scale: 1.025, boxShadow: `0 12px 24px -10px ${langInfo?.glowColor || 'rgba(0,122,255,0.4)'}` }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleShareOnGoogle}
-                className={`w-full py-4 px-6 text-[16px] font-black rounded-2xl text-white shadow-lg bg-gradient-to-r ${langInfo?.gradient || 'from-blue-500 to-indigo-600'} transition-all flex items-center justify-center gap-2 mb-4`}
+                className={`w-full py-3 px-5 text-[15px] font-black rounded-xl text-white shadow-lg bg-gradient-to-r ${langInfo?.gradient || 'from-blue-500 to-indigo-600'} transition-all flex items-center justify-center gap-2 mb-3`}
               >
                 <Check className="w-5 h-5 text-white" />
                 <span>Copy review & Continue to Google</span>
@@ -341,7 +410,7 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
               {/* Regenerate Trigger */}
               <button
                 onClick={() => handleLanguageSelect(selectedLang)}
-                className="text-[13px] text-slate-400 hover:text-[#007aff] font-bold text-center underline underline-offset-2 transition-colors mb-4 flex items-center justify-center gap-1"
+                className="text-[13px] text-slate-400 hover:text-[#007aff] font-bold text-center underline underline-offset-2 transition-colors mb-3 flex items-center justify-center gap-1"
               >
                 🔄 Regenerate this review
               </button>
@@ -352,13 +421,13 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
       </div>
 
       {/* Footer */}
-      <div className="text-center mt-auto pt-6 border-t border-slate-100">
-        <p className="text-[13px] text-slate-400 mb-1">
+      <div className="text-center mt-auto pt-4 border-t border-slate-100">
+        <p className="text-[12px] text-slate-400 mb-1">
           If you have concerns you wish to address privately,{' '}
-          <a href="https://doaguru.com" target="_blank" rel="noopener noreferrer" className="text-[#007aff] cursor-pointer hover:underline font-bold">click here.</a>
+          <a href={websiteUrl ? (websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`) : "https://doaguru.com"} target="_blank" rel="noopener noreferrer" className="text-[#007aff] cursor-pointer hover:underline font-bold">click here.</a>
         </p>
-        <p className="text-[13px] text-slate-400 font-semibold">
-          Powered by <a href="https://doaguru.com" target="_blank" rel="noopener noreferrer" className="text-[#007aff] font-bold hover:underline">DOAGuru InfoSystems ⚡</a>
+        <p className="text-[12px] text-slate-400 font-semibold">
+          Powered by <a href={websiteUrl ? (websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`) : "https://doaguru.com"} target="_blank" rel="noopener noreferrer" className="text-[#007aff] font-bold hover:underline">{businessName || 'DOAGuru InfoSystems'} ⚡</a>
         </p>
       </div>
     </motion.div>

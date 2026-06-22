@@ -120,11 +120,6 @@ const QRCodeDisplay = ({ targetUrl, qrCodeDataUrl = null, businessName = "Busine
     <div className="flex flex-col lg:flex-row gap-6 items-stretch w-full px-2 max-h-[85vh]">
       {/* 1. Flyer Preview Section */}
       <div className="flex-1 flex flex-col gap-3 min-w-[400px]">
-        <div className="flex items-center justify-between px-3">
-          <h3 className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#94a3b8' }}>Flyer Preview</h3>
-          <span className="text-[9px] font-bold text-white px-3 py-1 rounded-full uppercase tracking-widest" style={{ backgroundColor: '#2563eb' }}>Premium Template</span>
-        </div>
-
         <div
           id="premium-flyer-capture"
           ref={flyerRef}
@@ -205,10 +200,6 @@ const QRCodeDisplay = ({ targetUrl, qrCodeDataUrl = null, businessName = "Busine
 
       {/* 2. Configuration Panel Section */}
       <div className="flex-1 flex flex-col gap-3 min-w-[400px]">
-        <div className="px-3">
-          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Configuration</h3>
-        </div>
-
         <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-md flex-1 flex flex-col justify-center">
           <div className="mb-6 text-center">
             <h3 className="text-xl font-black text-slate-900 mb-1 uppercase tracking-tight italic">Generate QR</h3>
@@ -236,10 +227,10 @@ const QRCodeDisplay = ({ targetUrl, qrCodeDataUrl = null, businessName = "Busine
           <div className="flex flex-col gap-3">
             <button
               onClick={downloadFlyer}
-              className="w-full flex items-center justify-center gap-3 py-4 px-6 font-black rounded-xl bg-[#001f5c] text-white shadow-lg uppercase tracking-widest text-xs"
+              className="w-full flex items-center justify-center gap-3 py-4 px-6 font-black rounded-xl bg-[#001f5c] text-white shadow-lg uppercase tracking-widest text-xs cursor-pointer"
             >
               <Download size={20} strokeWidth={3} />
-              <span>Download Flyer</span>
+              <span>Download QR</span>
             </button>
 
             <button

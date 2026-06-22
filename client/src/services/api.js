@@ -1,29 +1,7 @@
 import axios from 'axios';
 
 const resolveBaseUrl = () => {
-  let configuredUrl = import.meta.env.VITE_API_URL?.trim();
-  if (configuredUrl) {
-    // Remove trailing slash and /api suffix to get the root server URL
-    configuredUrl = configuredUrl.replace(/\/$/, '');
-    if (configuredUrl.endsWith('/api')) {
-      configuredUrl = configuredUrl.slice(0, -4);
-    }
-    return configuredUrl;
-  }
-
-  if (typeof window !== 'undefined') {
-    const { protocol, hostname } = window.location;
-    const isLocalHost =
-      hostname === 'localhost' ||
-      hostname === '127.0.0.1' ||
-      hostname.startsWith('192.168.');
-
-    if (isLocalHost) {
-      return `${protocol}//${hostname}:8080`;
-    }
-  }
-
-  return 'http://localhost:8080';
+  return 'https://gmbreviews.siarasystems.com';
 };
 
 // Root server URL (for images, uploads, etc.) — change port/domain only in .env VITE_API_URL
@@ -39,6 +17,19 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 const createInFlightRequest = (requestFn) => {
   let inFlightPromise = null;
@@ -110,6 +101,9 @@ export const authService = {
   login: async (email, password) => {
     try {
       const response = await api.post('/login', { email, password });
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
       return response.data;
     } catch (error) {
       console.error("Auth error during login:", error.response?.data || error.message);
@@ -120,6 +114,7 @@ export const authService = {
   logout: async () => {
     try {
       const response = await api.post('/login/logout');
+      localStorage.removeItem('token');
       return response.data;
     } catch (error) {
       console.error("Logout error:", error);
@@ -236,10 +231,37 @@ export const adminService = {
       console.error("API error during sendReminder:", error);
       throw error.response?.data || error;
     }
+  },
+  getSystemSettings: async () => {
+    try {
+      const response = await api.get('/admin/system-settings');
+      return response.data;
+    } catch (error) {
+      console.error("API error during getSystemSettings:", error);
+      throw error.response?.data || error;
+    }
+  },
+  updateSystemSettings: async (settingsData) => {
+    try {
+      const response = await api.put('/admin/system-settings', settingsData);
+      return response.data;
+    } catch (error) {
+      console.error("API error during updateSystemSettings:", error);
+      throw error.response?.data || error;
+    }
   }
 };
 
 export const clientService = {
+  getSystemSettings: async () => {
+    try {
+      const response = await api.get('/client/system-settings');
+      return response.data;
+    } catch (error) {
+      console.error("API error during getSystemSettings:", error);
+      throw error.response?.data || error;
+    }
+  },
   getClientReviews: async (type = '', search = '', dateRange = '', startDate = '', endDate = '', page = 1, limit = 10) => {
     try {
       const params = { type, search, page, limit };
@@ -416,6 +438,36 @@ export const subscriptionService = {
       return response.data;
     } catch (error) {
       console.error("API error during renewSubscription:", error);
+      throw error.response?.data || error;
+    }
+  },
+
+  createPlan: async (planData) => {
+    try {
+      const response = await api.post('/subscription/admin/plans', planData);
+      return response.data;
+    } catch (error) {
+      console.error("API error during createPlan:", error);
+      throw error.response?.data || error;
+    }
+  },
+
+  updatePlan: async (planId, planData) => {
+    try {
+      const response = await api.put(`/subscription/admin/plans/${planId}`, planData);
+      return response.data;
+    } catch (error) {
+      console.error("API error during updatePlan:", error);
+      throw error.response?.data || error;
+    }
+  },
+
+  deletePlan: async (planId) => {
+    try {
+      const response = await api.delete(`/subscription/admin/plans/${planId}`);
+      return response.data;
+    } catch (error) {
+      console.error("API error during deletePlan:", error);
       throw error.response?.data || error;
     }
   }

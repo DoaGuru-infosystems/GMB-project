@@ -1,92 +1,99 @@
 const db = require("../config/db");
 
-exports.submitReview = (req, res) => {
+exports.submitReview = async (req, res) => {
   const { clientId, rating } = req.body;
   const fullName = req.body.fullName || req.body.name;
   const email = req.body.email || null;
   const mobile = req.body.mobile || null;
   const review = req.body.review || req.body.message;
 
-  const isPositive = rating >= 4;
+  const isPositive = rating >= 4 ? 1 : 0;
+  const connection = db.promise();
 
-  const insertReview = (placeId) => {
-    const query = "INSERT INTO reviews (clientId, fullName, email, mobile, rating, review, isPositive) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    db.query(
-      query,
-      [clientId, fullName, email, mobile, rating, review, isPositive],
-      (err) => {
-        if (err) {
-          console.error(err);
-          return res.status(500).json({ message: "Error submitting review" });
-        }
+  const insertReview = async (clientDbId, placeId) => {
+    try {
+      const query = "INSERT INTO reviews (client_id, customer_name, customer_email, customer_mobile, rating, review, is_positive) VALUES (?, ?, ?, ?, ?, ?, ?)";
+      await connection.query(
+        query,
+        [clientDbId, fullName, email, mobile, rating, review, isPositive]
+      );
 
-        if (isPositive) {
-          return res.json({
-            redirect: "google",
-            url: `https://search.google.com/local/writereview?placeid=${placeId}`,
-          });
-        } else {
-          return res.json({ redirect: "internal" });
-        }
+      if (isPositive) {
+        return res.json({
+          redirect: "google",
+          url: `https://search.google.com/local/writereview?placeid=${placeId}`,
+        });
+      } else {
+        return res.json({ redirect: "internal" });
       }
-    );
+    } catch (err) {
+      console.error("Error inserting review:", err);
+      return res.status(500).json({ message: "Error submitting review" });
+    }
   };
 
-  if (clientId === 'admin' || clientId === 'admin') {
-    const adminPlaceId = 'ChIJT-5eGRaxgTkRxyMc7_psGWI';
-    return insertReview(adminPlaceId);
-  }
+  // 1. Get client database ID and placeId
+  try {
+    const [clientResult] = await connection.query(
+      `SELECT c.id, b.place_id as placeId 
+       FROM clients c 
+       LEFT JOIN businesses b ON b.client_id = c.id 
+       WHERE c.clientId = ?`,
+      [clientId]
+    );
 
-  // 1. Get client placeId
-  db.query(
-    "SELECT placeId FROM clients WHERE clientId = ?",
-    [clientId],
-    (err, clientResult) => {
-      if (err) {
-        return res.status(500).json({ message: "Database error" });
+    if (clientResult.length === 0) {
+      if (clientId === 'admin') {
+        const fallbackPlaceId = 'ChIJT-5eGRaxgTkRxyMc7_psGWI';
+        return await insertReview(null, fallbackPlaceId);
       }
-
-      if (clientResult.length === 0) {
-        return res.status(400).json({ message: "Client not found" });
-      }
-
-      insertReview(clientResult[0].placeId);
+      return res.status(400).json({ message: "Client not found" });
     }
-  );
+
+    const placeId = clientResult[0].placeId || (clientId === 'admin' ? 'ChIJT-5eGRaxgTkRxyMc7_psGWI' : '');
+    await insertReview(clientResult[0].id, placeId);
+  } catch (err) {
+    console.error("Database error in submitReview:", err);
+    return res.status(500).json({ message: "Database error" });
+  }
 };
 
-// Admin dashboard ke liye
-// Admin dashboard ke liye - Sare reviews with Business Name
+// Admin dashboard reviews list
 exports.getAllReviews = (req, res) => {
   const { clientId, dateRange, startDate, endDate, page = 1, limit = 10 } = req.query;
   const offset = (page - 1) * limit;
 
   let query = `
     FROM reviews r
-    LEFT JOIN clients c ON r.clientId = c.clientId
+    LEFT JOIN clients c ON r.client_id = c.id
+    LEFT JOIN businesses b ON b.client_id = c.id
     WHERE 1=1
   `;
   const params = [];
 
   if (clientId && clientId !== 'all') {
-    query += " AND r.clientId = ?";
-    params.push(clientId);
+    if (clientId === 'admin') {
+      query += " AND (r.client_id IS NULL OR c.clientId = 'admin')";
+    } else {
+      query += " AND c.clientId = ?";
+      params.push(clientId);
+    }
   }
 
   if (dateRange) {
     if (dateRange === 'Custom Range' && startDate && endDate) {
-      query += " AND r.createdAt >= ? AND r.createdAt <= ?";
+      query += " AND r.created_at >= ? AND r.created_at <= ?";
       params.push(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
     } else if (dateRange === 'This Month') {
-      query += " AND MONTH(r.createdAt) = MONTH(NOW()) AND YEAR(r.createdAt) = YEAR(NOW())";
+      query += " AND MONTH(r.created_at) = MONTH(NOW()) AND YEAR(r.created_at) = YEAR(NOW())";
     } else if (dateRange === 'Last Month') {
-      query += " AND r.createdAt >= DATE_SUB(DATE_FORMAT(NOW() ,'%Y-%m-01'), INTERVAL 1 MONTH) AND r.createdAt < DATE_FORMAT(NOW() ,'%Y-%m-01')";
+      query += " AND r.created_at >= DATE_SUB(DATE_FORMAT(NOW() ,'%Y-%m-01'), INTERVAL 1 MONTH) AND r.created_at < DATE_FORMAT(NOW() ,'%Y-%m-01')";
     } else if (dateRange === 'Last 3 Months') {
-      query += " AND r.createdAt >= DATE_SUB(NOW(), INTERVAL 3 MONTH)";
+      query += " AND r.created_at >= DATE_SUB(NOW(), INTERVAL 3 MONTH)";
     } else if (dateRange === 'Last 6 Months') {
-      query += " AND r.createdAt >= DATE_SUB(NOW(), INTERVAL 6 MONTH)";
+      query += " AND r.created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)";
     } else if (dateRange === 'Last 12 Months') {
-      query += " AND r.createdAt >= DATE_SUB(NOW(), INTERVAL 12 MONTH)";
+      query += " AND r.created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)";
     }
   }
 
@@ -100,13 +107,15 @@ exports.getAllReviews = (req, res) => {
 
     const total = countResult[0].total;
     const dataQuery = `
-      SELECT r.*, 
-      CASE 
-        WHEN r.clientId = 'admin' THEN 'DOAGuru'
-        ELSE c.businessName 
-      END as businessName
+      SELECT r.id, r.customer_name as fullName, r.customer_mobile as mobile, r.customer_email as email,
+             r.rating, r.review, r.is_positive as isPositive, r.created_at as createdAt,
+             c.clientId,
+             CASE 
+               WHEN r.client_id IS NULL THEN 'DOAGuru'
+               ELSE b.business_name 
+             END as businessName
       ${query}
-      ORDER BY r.createdAt DESC
+      ORDER BY r.created_at DESC
       LIMIT ? OFFSET ?
     `;
 
@@ -187,40 +196,24 @@ exports.generateReview = async (req, res) => {
     const keysStr = Array.isArray(keywords) ? keywords.join(', ') : (keywords || 'great service');
     const bName = businessName || 'this place';
     
-    // Convert business name and keywords to Hindi fallback if language is Hindi
     const hindiKeys = translateKeywordsToHindi(keywords);
     
     const fallbackMap = {
-      hindi: `दिल से कहूं तो ${bName} का अनुभव बहुत ही शानदार रहा। ${hindiKeys} के मामले में इनका काम लाजवाब है और यहाँ की टीम का व्यवहार बहुत ही सहयोगी था। मैं बिना किसी संकोच के यहाँ जाने का सुझाव दूँगा!`,
-      hinglish: `Yaar, ${bName} ka experience sach mein solid tha! ${keysStr} ke liye gaye the aur bilkul satisfied hokar nikle. Dobaara zaroor aaunga, recommend bhi karunga!`,
-      english: `Honestly, really happy with my experience at ${bName}. The ${keysStr} was handled so well — felt like they actually cared. Would go back without a second thought!`
+      hindi: `${bName} का अनुभव बहुत ही शानदार रहा। ${hindiKeys} के मामले में इनका काम उत्कृष्ट है और यहाँ की टीम का व्यवहार बहुत ही सहयोगी था। मैं सभी को यहाँ आने का सुझाव देता हूँ!`,
+      hinglish: `${bName} ka experience bahut badhiya raha. ${keysStr} ke liye inka kaam sach mein accha hai aur staff bhi supportive tha. Main sabhi ko yahan aane ki salah dunga.`,
+      english: `Very satisfied with my experience at ${bName}. The service for ${keysStr} was handled professionally and the team was supportive. I highly recommend them.`
     };
     return res.json({ generatedReview: fallbackMap[language] || fallbackMap.english });
   }
 
   const keysStr = Array.isArray(keywords) ? keywords.join(', ') : (keywords || 'services');
 
-  // Random sentence starters to add variety and avoid robotic sameness
-  const englishStarters = [
-    `Honestly`, `Really happy with`, `So glad I found`,
-    `Big shoutout to`, `Just had to say`, `Went to`
-  ];
-  const hinglishStarters = [
-    `Yaar`, `Sach mein`, `Bhai`, `Seedha bolunga`, `Honestly bolunga toh`
-  ];
-  const hindiStarters = [
-    `सच में`, `दिल से कहूं तो`, `बस इतना कहना था`,
-    `खुश हूँ कि मैंने इन्हें चुना`, `यहाँ का अनुभव बेहद शानदार रहा`
-  ];
-
-  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-  // Use exact business name — never a placeholder
   const bizName = (businessName && businessName.trim()) ? businessName.trim() : null;
 
-  // Rules appended to every prompt to strip AI-giveaway punctuation
   const antiAiRules = `
 STRICT OUTPUT RULES. These are non-negotiable:
 - The business name in this review MUST be exactly: ${bizName || 'the business'}. Do NOT replace it with XYZ, ABC, [Business Name], *Business Name*, or any other placeholder.
+- Do NOT use any emojis, icons, stars, or special symbols (like 🌟, 👍, 😊, ★, etc.). Use only plain text.
 - Do not use double quotes anywhere. Not even once.
 - Do not use em dash or en dash. No special dash characters.
 - Do not use ellipsis. No trailing dots.
@@ -236,8 +229,13 @@ STRICT OUTPUT RULES. These are non-negotiable:
 The business being reviewed is called: ${bizName || 'the business'}
 The customer used these services: ${keysStr}
 
-Start the review with: ${pick(englishStarters)}
-
+Write a natural, simple, and highly realistic review. Start directly with the business name or a natural statement about your experience.
+Avoid template-like starters such as "Honestly", "Really happy with", "Just had to say", "Big shoutout to". 
+Avoid cliché phrases and literal idioms like "without a second thought" or "without thinking twice". Do NOT always write recommendation sentences like "highly recommend them" or "highly recommended" at the end of every review. Also, avoid overusing repetitive phrases like "Very satisfied with the service" or "Very happy with the service". Real customer reviews vary.
+Vary the ending style dynamically every time you generate to keep it organic. 
+- In some generations, do NOT write any recommendation or return statements at all (it should just end naturally with a simple sentence describing the experience, staff behavior, or the service itself, without concluding templates).
+- In other generations, you can write about coming back (e.g., indicating you will return in the future), or expressing satisfaction/gratitude.
+- Randomly alternate between these styles so that sequentially generated reviews never look similar or share the same pattern.
 Write casually like a real person on their phone. 2 to 3 sentences only. Use the business name ${bizName || 'the business'} exactly as written. Avoid corporate words like top-notch, seamless, stellar, commendable.
 ${antiAiRules}`,
 
@@ -246,9 +244,13 @@ ${antiAiRules}`,
 Business ka naam: ${bizName || 'yeh business'}
 Customer ne use kiya: ${keysStr}
 
-Review ki shuruat kar: ${pick(hinglishStarters)}
-
-Likh jaise WhatsApp pe dost ko bata raha ho. Hinglish mein likh, Devanagari nahi. 2 se 3 lines max. Business name ${bizName || 'yeh business'} exactly waise hi use karna. Top-notch, seamless wale words avoid karna.
+Review ko bilkul realistic aur natural rakhna. Shuruat seedhe business name ya natural experience statement se karna (jaise "${bizName || 'yeh business'} mein experience bohot sahi raha" ya "yahan ka treatment bohot accha hai").
+OVERLY FRIENDLY AUR CASUAL SLANG BILKUL USE MAT KARNA. "Yaar", "Bhai", "Bhaiya", "Dosto", "Honestly bolunga toh", "Seedha bolunga", "bina soche", "bina soche samjhe" jaise keywords bilkul use NAHI hone chahiye. Ek mature/real customer ki tarah Hinglish mein likh, Devanagari nahi. 2 to 3 lines max. Business name ${bizName || 'yeh business'} exactly waise hi use karna. Top-notch, seamless wale words avoid karna.
+Hinglish review ke end mein hamesha "highly recommend", "zaroor suggest karunga", "very satisfied", ya "will definitely return" jaise cliché words use mat karna.
+Endings ko dynamically vary karo:
+- Kuch reviews mein bilkul normal ending rakho bina koi extra recommendation ya returning status likhe (jaise staff helpful tha, ya kaam accha laga).
+- Kuch reviews mein return hone ka intention ya general positive comment dalo.
+- Har generation mein randomly style badalna chahiye taaki sequential reviews repetitive ya automated na lagein.
 ${antiAiRules}`,
 
     hindi: `Aap ek customer ki taraf se Google review likh rahe hain.
@@ -256,13 +258,22 @@ ${antiAiRules}`,
 Business ka naam: ${bizName || 'यह जगह'}
 Customer ka anubhav / keywords: ${keysStr}
 
-Review ki shuruat karein: ${pick(hindiStarters)}
+Review ko bilkul realistic, seedha aur natural rakhein. Shuruat seedhe business name ya anubhav se karein.
+Cheesy ya overly-friendly phrases jaise "Yaar", "Bhai", "दिल से कहूं तो", "बस इतना कहना था", "खुश हूँ कि मैंने इन्हें चुना", "बिना सोचे", "बिना सोचे समझे", "बिना दोबारा सोचे" bilkul use NA karein. Ek aam, mature customer ki tarah likhein.
 
 STRICT RULES FOR HINDI LANGUAGE:
 - Write the entire review in PURE HINDI using Devanagari script ONLY.
-- Do NOT use any English alphabets/letters (like A-Z, a-z).
+- Do NOT use any English alphabets/letters (like A-Z, a-z) except for the exact business name "${bizName || 'the business'}".
 - Do NOT write English words in Devanagari script (e.g. do NOT write words like "helpful", "cooperative", "recommend", "best", "school", "faculty", "marketing", "teaching", "service", "support" as "हेल्पफुल", "कोऑपरेटिव", "रिकमेंड", "बेस्ट", "स्कूल", "फैकल्टी", "मार्केटिंग", "टीचिंग" etc.).
-- Convert and translate ALL English keywords and words into natural, native, simple Hindi words (e.g. translate "best" to "सर्वश्रेष्ठ" or "उत्कृष्ट" or "शानदार", "cooperative" to "मददगार" or "सहयोगी", "recommend" to "सलाह देता हूँ" or "सुझाव दूँगा", "teaching" to "पढ़ाना" or "शिक्षण कार्य", "faculty" to "स्टाफ और शिक्षक", "communication" to "सम्पर्क और बातचीत", "helpful" to "मददगार").
+- Do NOT translate English idioms literally (e.g. do NOT translate "without a second thought" or "without thinking" to "बिना सोचे", "बिना सोचे समझे", or "बिना किसी संकोच के"). Instead, use natural Hindi recommendations like "मैं यहाँ आने का सुझाव देता हूँ" or "मैं निश्चित रूप से यहाँ आने की सलाह दूँगा".
+- Do NOT use ambiguous pronoun references like "मैं उन्हें सुझाव देता हूँ" or "मैं उन्हें सलाह देता हूँ" or "पूर्ण भरोसा के साथ" (since it is unclear who "उन्हें" refers to). Instead, refer directly to the business/services or recommend the place directly, e.g., use "मैं यहाँ आने की सलाह देता हूँ", "मैं यहाँ जाने की सलाह दूँगा", or "यहाँ की सेवाओं पर पूरा भरोसा किया जा सकता है".
+- Do NOT translate "recommend", "highly recommend", or "endorse" as "इसे स्वीकार करूँ", "स्वीकार करूँ", "स्वीकार करना", or similar terms of acceptance/approval. Use natural recommendation verbs like "सलाह देता हूँ", "सुझाव देता हूँ", "सिफारिश करता हूँ", or "यहाँ आने के लिए बोलूँगा".
+- Do NOT overuse recommendation words like "सुझाता हूँ", "सुझाव देता हूँ", or "सलाह देता हूँ" at the end of every review. Also, avoid repetitive ending statements like "यहाँ की सेवाएँ बहुत अच्छी लगीं" or "मैं यहाँ वापस आऊँगा". Introduce variety in the concluding sentences, or omit the recommendation/satisfaction statement entirely.
+- Vary the ending statement dynamically.
+  - In some generations, do NOT write any recommendation or return statements at all (it should just end naturally with a simple sentence describing the experience, staff behavior, or the service itself, without concluding templates).
+  - In other generations, you can write about coming back (e.g., returning for future needs), thanking the team, or expressing satisfaction in fresh words.
+  - Randomly alternate between these styles so that sequentially generated reviews never look similar or share the same pattern.
+- Convert and translate ALL English keywords and words into natural, native, simple Hindi words (e.g. translate "best" to "सर्वश्रेष्ठ" or "उत्कृष्ट" or "शानदार", "cooperative" to "मददगार" or "सहयोगी", "recommend" to "सलाह देता हूँ" or "सुझाव दूँगा", "teaching" to "पढ़ाना" or "शिक्षण कार्य", "faculty" to "स्टाफ और शिक्षक", "communication" to "सम्पर्क aur बातचीत", "helpful" to "मददगार").
 - Ensure the tone is friendly, warm, casual, and feels completely like an authentic Indian customer writing a genuine review.
 - 2 to 3 sentences max.
 ${antiAiRules}`
@@ -278,7 +289,7 @@ ${antiAiRules}`
   const apiModel = isCustomKey ? "openai/gpt-3.5-turbo" : "gpt-3.5-turbo";
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 seconds timeout
+  const timeoutId = setTimeout(() => controller.abort(), 6000);
 
   try {
     const response = await fetch(apiUrl, {
@@ -290,8 +301,8 @@ ${antiAiRules}`
       body: JSON.stringify({
         model: apiModel,
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 150,
-        temperature: 0.9
+        max_tokens: 350,
+        temperature: 0.85
       }),
       signal: controller.signal
     });
@@ -304,18 +315,18 @@ ${antiAiRules}`
       throw new Error(data.error?.message || "AI API Error");
     }
 
-    // Strip AI-giveaway punctuation and placeholder patterns
     const rawText = data.choices[0].message.content.trim();
     let generatedText = rawText
-      .replace(/[\u201C\u201D\u201E]/g, '')     // remove fancy double quotes
-      .replace(/\*+([^*]*)\*+/g, '$1')          // strip *asterisk* wrapping
-      .replace(/\[([^\]]+)\]/g, '$1')           // strip [bracket] wrapping
-      .replace(/\u2014|\u2013/g, ',')           // em/en dash to comma
-      .replace(/\.{2,}/g, '.')                  // ellipsis to single period
-      .replace(/[()\[\]]/g, '')                 // remove leftover parens/brackets
-      .replace(/;/g, ',')                       // semicolon to comma
-      .replace(/^["']+|["']+$/g, '')            // strip wrapping straight quotes
-      // Replace AI placeholder patterns with actual business name
+      .replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '')
+      .replace(/[★☆🌟✨⭐]/g, '')
+      .replace(/[\u201C\u201D\u201E]/g, '')
+      .replace(/\*+([^*]*)\*+/g, '$1')
+      .replace(/\[([^\]]+)\]/g, '$1')
+      .replace(/\u2014|\u2013/g, ',')
+      .replace(/\.{2,}/g, '.')
+      .replace(/[()\[\]]/g, '')
+      .replace(/;/g, ',')
+      .replace(/^["']+|["']+$/g, '')
       .replace(/\*?Business Name\*?/gi, bizName || '')
       .replace(/\[Business Name\]/gi, bizName || '')
       .replace(/\bXYZ\b/g, bizName || '')
@@ -333,8 +344,8 @@ ${antiAiRules}`
     const hindiKeys = translateKeywordsToHindi(keywords);
     
     const fallbackMap = {
-      hindi: `दिल से कहूं तो ${bName} का काम सच में लाजवाब है। ${hindiKeys} के मामले में इनकी सेवा बहुत शानदार थी, और यहाँ के स्टाफ का व्यवहार बेहद मददगार रहा। मैं बिना सोचे दूसरों को यहाँ आने की सलाह दूँगा!`,
-      hinglish: `Bhai, ${bName} gaya tha ${fallbackKeys} ke liye aur honestly expected se kaafi better raha. Team bhi bahut helpful thi. Next time bhi yehi choice hogi!`,
+      hindi: `${bName} का काम सच में लाजवाब है। ${hindiKeys} के मामले में इनकी सेवा बहुत शानदार थी, और यहाँ के स्टाफ का व्यवहार बेहद मददगार रहा। मैं निश्चित रूप से यहाँ आने की सलाह दूँगा!`,
+      hinglish: `${bName} mein experience bahut accha raha. ${fallbackKeys} ke liye inka kaam sach mein badhiya hai aur staff cooperative tha. Next time bhi yehi choice hogi!`,
       english: `Really glad I went with ${bName} for ${fallbackKeys}. The whole thing was smooth and the team was genuinely helpful. Solid experience, will be back!`
     };
     res.json({ generatedReview: fallbackMap[language] || fallbackMap.english });

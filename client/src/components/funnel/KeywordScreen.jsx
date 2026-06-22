@@ -36,7 +36,7 @@ const IMPACTS = [
   "Exceeded Expectations"
 ];
 
-const KeywordScreen = ({ onNext, customQuestions, logo: clientLogo, colors }) => {
+const KeywordScreen = ({ onNext, customQuestions, logo: clientLogo, colors, businessName, websiteUrl }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
 
@@ -381,8 +381,11 @@ const KeywordScreen = ({ onNext, customQuestions, logo: clientLogo, colors }) =>
         </motion.button>
 
         <div className="text-center">
-          <p className="text-[13px] text-slate-500">
+          <p className="text-[13px] text-slate-500 mb-1">
             If you have concerns you wish to address privately, <span className="text-[#007aff] cursor-pointer hover:underline">click here.</span>
+          </p>
+          <p className="text-[13px] text-slate-500 font-semibold">
+            Powered by <a href={websiteUrl ? (websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`) : "https://doaguru.com"} target="_blank" rel="noopener noreferrer" className="text-blue-500 font-medium hover:underline">{businessName || "Doaguru InfoSystems"} ⚡</a>
           </p>
         </div>
       </div>

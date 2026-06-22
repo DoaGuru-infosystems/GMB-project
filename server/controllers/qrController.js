@@ -4,7 +4,7 @@ const db = require('../config/db');
 exports.generateQRCode = async (req, res) => {
     try {
         const clientId = req.user?.clientId || req.user?.clientID || 'admin';
-        const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const baseUrl = process.env.FRONTEND_URL || 'https://gmbreviews.siarasystems.com';
         const reviewUrl = `${baseUrl}/review/${clientId}`;
 
         // Fetch business details if it's a specific client
@@ -16,7 +16,14 @@ exports.generateQRCode = async (req, res) => {
 
         if (clientId !== 'admin') {
             const [rows] = await db.promise().query(
-                "SELECT businessName, logo, websiteUrl FROM clients WHERE clientId = ?",
+                `SELECT 
+                    b.business_name as businessName, 
+                    bb.logo, 
+                    b.website_url as websiteUrl 
+                 FROM clients c
+                 LEFT JOIN businesses b ON b.client_id = c.id
+                 LEFT JOIN business_branding bb ON bb.business_id = b.id
+                 WHERE c.clientId = ?`,
                 [clientId]
             );
             if (rows && rows.length > 0) {
@@ -37,8 +44,8 @@ exports.generateQRCode = async (req, res) => {
             }
         });
 
-        res.json({ 
-            qrCodeDataUrl, 
+        res.json({
+            qrCodeDataUrl,
             reviewUrl,
             ...businessDetails
         });
@@ -47,4 +54,3 @@ exports.generateQRCode = async (req, res) => {
         res.status(500).json({ message: "Failed to generate QR code" });
     }
 };
-

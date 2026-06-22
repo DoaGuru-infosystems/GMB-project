@@ -28,7 +28,7 @@ const QRPage = () => {
 
   useGSAP(() => {
     if (!loading && qrData) {
-      gsap.fromTo('.qr-card',
+      gsap.fromTo('.qr-anim',
         { y: 20, opacity: 0 },
         {
           y: 0,
@@ -43,10 +43,11 @@ const QRPage = () => {
   }, { scope: containerRef, dependencies: [loading, qrData] });
 
   return (
-    <div ref={containerRef} className="max-w-5xl w-full mx-auto px-4 py-8">
-      <div className="mb-8 qr-card">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-1">QR Code Management</h1>
-        <p className="text-slate-500">Generate and customize your review funnel QR codes.</p>
+    <div ref={containerRef} className="space-y-6 pb-10 font-sans">
+      <div className="qr-anim">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full mb-2.5 inline-block">Flyers & Media</span>
+        <h1 className="text-3xl font-black tracking-tight text-slate-900 bg-gradient-to-r from-slate-900 to-indigo-950 bg-clip-text text-transparent mb-1">QR Code Management</h1>
+        <p className="text-slate-500 text-xs font-semibold mt-1">Generate and customize your review funnel QR codes.</p>
       </div>
 
       {loading ? (
@@ -60,7 +61,7 @@ const QRPage = () => {
           <p className="mt-2 text-sm">{error}</p>
         </div>
       ) : (
-        <div className="qr-card fade-in">
+        <div className="qr-anim fade-in">
           {qrData?.reviewUrl ? (
             <QRCodeDisplay 
               targetUrl={qrData.reviewUrl} 

@@ -67,7 +67,7 @@ const NotificationsPage = () => {
             console.error(e);
         }
     };
-    
+
     const handleSendReminder = async (clientId, subId) => {
         try {
             setSendingReminder(subId);
@@ -84,8 +84,8 @@ const NotificationsPage = () => {
     // ── FIXED ANIMATION LOGIC ──
     // Header only animates on initial mount
     useGSAP(() => {
-        gsap.fromTo('.header-anim', 
-            { y: -20, opacity: 0 }, 
+        gsap.fromTo('.header-anim',
+            { y: -20, opacity: 0 },
             { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }
         );
     }, { scope: containerRef });
@@ -93,8 +93,8 @@ const NotificationsPage = () => {
     // Content cards animate when tab/filter/loading changes
     useGSAP(() => {
         if (!loading || !expiringLoading) {
-            gsap.fromTo('.card-anim', 
-                { y: 20, opacity: 0 }, 
+            gsap.fromTo('.card-anim',
+                { y: 20, opacity: 0 },
                 { y: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: 'power2.out' }
             );
         }
@@ -114,44 +114,36 @@ const NotificationsPage = () => {
     };
 
     return (
-        <div ref={containerRef} className="min-h-screen bg-slate-50/50 pb-20 px-4 md:px-8">
-            <div className="max-w-5xl mx-auto pt-6 space-y-6">
-                
-                {/* ── Balanced Header ── */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 header-anim">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-slate-900 rounded-xl shadow-lg">
-                                <Bell className="text-white" size={24} />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Notifications</h1>
-                                <p className="text-slate-500 text-sm font-medium">Manage alerts and renewals.</p>
-                            </div>
-                        </div>
-                        
-                        {unreadCount > 0 && (
-                            <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-2 rounded-xl flex items-center gap-2">
-                                <AlertTriangle size={16} className="animate-pulse" />
-                                <span className="font-bold text-sm">{unreadCount} Pending Alerts</span>
-                            </div>
-                        )}
-                    </div>
+        <div ref={containerRef} className="space-y-6 pb-10 font-sans">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 header-anim">
+                <div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full mb-2.5 inline-block">System Alerts</span>
+                    <h1 className="text-3xl font-black tracking-tight text-slate-900 bg-gradient-to-r from-slate-900 to-indigo-950 bg-clip-text text-transparent">Notifications</h1>
+                    <p className="text-slate-500 text-xs font-semibold mt-1">Manage alerts and subscription renewals.</p>
                 </div>
+
+                {unreadCount > 0 && (
+                    <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-2 rounded-xl flex items-center gap-2 self-start md:self-auto shadow-sm">
+                        <AlertTriangle size={16} className="animate-pulse" />
+                        <span className="font-bold text-xs">{unreadCount} Pending Alerts</span>
+                    </div>
+                )}
+            </div>
 
                 {/* ── Tab Selector ── */}
                 {isAdmin && (
                     <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm w-fit header-anim">
                         <button
                             onClick={() => setActiveTab('notifications')}
-                            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'notifications' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-900'}`}
+                            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-all ${activeTab === 'notifications' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-900'}`}
                         >
                             <Inbox size={16} />
                             Activity
                         </button>
                         <button
                             onClick={() => setActiveTab('expiring')}
-                            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'expiring' ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-900'}`}
+                            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-all ${activeTab === 'expiring' ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-900'}`}
                         >
                             <CalendarX size={16} />
                             Expiring Soon
@@ -161,15 +153,15 @@ const NotificationsPage = () => {
 
                 {/* ── Content ── */}
                 <div className="space-y-6">
-                    
+
                     {activeTab === 'notifications' ? (
                         <>
                             <div className="flex gap-2 header-anim">
                                 {['all', 'unread'].map(f => (
-                                    <button 
-                                        key={f} 
+                                    <button
+                                        key={f}
                                         onClick={() => setFilter(f)}
-                                        className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border transition-all ${filter === f ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-400 border-slate-200'}`}
+                                        className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border cursor-pointer transition-all ${filter === f ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-400 border-slate-200'}`}
                                     >
                                         {f}
                                     </button>
@@ -187,7 +179,7 @@ const NotificationsPage = () => {
                             ) : (
                                 <div className="grid gap-3">
                                     {filteredNotifications.map(notif => (
-                                        <div 
+                                        <div
                                             key={notif.id}
                                             className={`bg-white rounded-xl p-5 border transition-all card-anim ${!notif.is_read ? 'border-blue-200 shadow-md shadow-blue-50' : 'border-slate-100'}`}
                                         >
@@ -195,7 +187,7 @@ const NotificationsPage = () => {
                                                 <div className={`p-2.5 rounded-lg shrink-0 ${!notif.is_read ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-300'}`}>
                                                     <Bell size={18} />
                                                 </div>
-                                                
+
                                                 <div className="flex-1 min-w-0 space-y-3">
                                                     <div className="flex items-center justify-between gap-4">
                                                         <div className="flex items-center gap-2">
@@ -220,7 +212,7 @@ const NotificationsPage = () => {
                                                         </div>
 
                                                         {!notif.is_read && (
-                                                            <button 
+                                                            <button
                                                                 onClick={() => handleMarkAsRead(notif.id)}
                                                                 className="text-xs font-bold text-blue-600 hover:underline"
                                                             >
@@ -259,8 +251,8 @@ const NotificationsPage = () => {
                                     <span className="text-slate-500 font-bold text-xs">Days:</span>
                                     <div className="flex bg-slate-50 p-1 rounded-lg">
                                         {[7, 14, 30].map(d => (
-                                            <button 
-                                                key={d} 
+                                            <button
+                                                key={d}
                                                 onClick={() => { setDaysFilter(d); fetchExpiringSubscriptions(d); }}
                                                 className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${daysFilter === d ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}
                                             >
@@ -289,7 +281,7 @@ const NotificationsPage = () => {
                                     {expiringSubscriptions.map(sub => {
                                         const s = getUrgencyStyles(sub.daysLeft);
                                         return (
-                                            <div 
+                                            <div
                                                 key={sub.subscriptionId}
                                                 className={`bg-white rounded-xl p-4 border-l-4 shadow-sm card-anim ${s.border}`}
                                             >
@@ -310,23 +302,23 @@ const NotificationsPage = () => {
                                                             <p className="text-[10px] text-slate-400 font-bold uppercase">Plan</p>
                                                             <p className="text-sm font-bold text-slate-900">{sub.planName}</p>
                                                         </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <button 
-                                                            onClick={() => handleSendReminder(sub.clientId, sub.subscriptionId)}
-                                                            disabled={sendingReminder === sub.subscriptionId}
-                                                            className={`px-4 py-2 rounded-lg text-white text-xs font-bold transition-all flex items-center gap-2 ${s.btn} disabled:opacity-50`}
-                                                        >
-                                                            {sendingReminder === sub.subscriptionId ? <RefreshCw size={14} className="animate-spin" /> : <Mail size={14} />}
-                                                            {sendingReminder === sub.subscriptionId ? 'Sending...' : 'Send Reminder'}
-                                                        </button>
-                                                        <a 
-                                                            href={`mailto:${sub.clientEmail}?subject=${encodeURIComponent("Renewal Reminder")}&body=${encodeURIComponent(`Dear ${sub.clientName},\n\nYour subscription for ${sub.businessName} is expiring in ${sub.daysLeft} days. Please renew it to continue using our services.\n\nPlan: ${sub.planName}`)}`}
-                                                            className="p-2 text-slate-400 hover:text-slate-900 bg-slate-50 rounded-lg transition-colors border border-slate-100"
-                                                            title="Email Manually"
-                                                        >
-                                                            <Mail size={16} />
-                                                        </a>
-                                                    </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <button
+                                                                onClick={() => handleSendReminder(sub.clientId, sub.subscriptionId)}
+                                                                disabled={sendingReminder === sub.subscriptionId}
+                                                                className={`px-4 py-2 rounded-lg text-white text-xs font-bold transition-all flex items-center gap-2 ${s.btn} disabled:opacity-50`}
+                                                            >
+                                                                {sendingReminder === sub.subscriptionId ? <RefreshCw size={14} className="animate-spin" /> : <Mail size={14} />}
+                                                                {sendingReminder === sub.subscriptionId ? 'Sending...' : 'Send Reminder'}
+                                                            </button>
+                                                            <a
+                                                                href={`mailto:${sub.clientEmail}?subject=${encodeURIComponent("Renewal Reminder")}&body=${encodeURIComponent(`Dear ${sub.clientName},\n\nYour subscription for ${sub.businessName} is expiring in ${sub.daysLeft} days. Please renew it to continue using our services.\n\nPlan: ${sub.planName}`)}`}
+                                                                className="p-2 text-slate-400 hover:text-slate-900 bg-slate-50 rounded-lg transition-colors border border-slate-100"
+                                                                title="Email Manually"
+                                                            >
+                                                                <Mail size={16} />
+                                                            </a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -337,7 +329,6 @@ const NotificationsPage = () => {
                         </div>
                     )}
                 </div>
-            </div>
         </div>
     );
 };

@@ -70,10 +70,17 @@ const FeedbackScreen = ({ onSubmit, logo: clientLogo }) => {
         <div>
           <input
             type="tel"
-            {...register("phone")}
+            {...register("phone", {
+              pattern: { value: /^[6-9]\d{9}$/, message: "Invalid 10-digit number" },
+              onChange: (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+              }
+            })}
+            maxLength={10}
             className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 rounded-lg text-[15px] outline-none transition-all placeholder:text-slate-300 font-medium text-slate-800"
             placeholder="Phone"
           />
+          {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
         </div>
 
         <div>

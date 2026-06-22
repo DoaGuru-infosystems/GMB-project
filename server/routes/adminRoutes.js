@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const auth = require("../middleware/authmiddleware");
+const auth = require("../middleware/authMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 
 const {
@@ -10,6 +10,8 @@ const {
     getNotifications,
     markNotificationRead,
     getExpiringSubscriptions,
+    getSystemSettings,
+    updateSystemSettings,
 } = require("../controllers/adminController");
 
 const { sendManualReminder: sendReminder } = require("../controllers/notificationController");
@@ -18,6 +20,8 @@ router.post("/clients", auth(["admin"]), createClient);
 router.get("/clients", auth(["admin"]), getClients);
 router.put("/clients/:clientId/status", auth(["admin"]), toggleClientStatus);
 router.put("/clients/:clientId", auth(["admin"]), updateClient);
+router.get("/system-settings", auth(["admin"]), getSystemSettings);
+router.put("/system-settings", auth(["admin"]), updateSystemSettings);
 
 // Upload logo
 router.post("/upload", auth(["admin", "client"]), upload.single("logo"), (req, res) => {

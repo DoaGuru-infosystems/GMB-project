@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
 
 // Center Spinner Component for Loading Fallback
 const LoadingFallback = () => (
@@ -26,6 +26,12 @@ const SubscriptionManagement = lazy(() => import('../pages/admin/SubscriptionMan
 const Notifications = lazy(() => import('../pages/admin/Notifications'));
 const Navbar = lazy(() => import('../components/Navbar'));
 
+const RedirectOldReview = () => {
+  const { clientId } = useParams();
+  const { search } = useLocation();
+  return <Navigate to={`/review${clientId ? `/${clientId}` : ''}${search}`} replace />;
+};
+
 const AppRoutes = () => {
   return (
     <Suspense fallback={<LoadingFallback />}>
@@ -34,6 +40,8 @@ const AppRoutes = () => {
         <Route path="/" element={<Navigate to="/review?clientId=admin" replace />} />
         <Route path="/review" element={<Home />} />
         <Route path="/review/:clientId" element={<Home />} />
+        <Route path="/review-doaguru" element={<RedirectOldReview />} />
+        <Route path="/review-doaguru/:clientId" element={<RedirectOldReview />} />
         <Route path="/thank-you" element={<ThankYou />} />
         <Route path="/redirect" element={<Redirect />} />
         <Route path="/subscription/:clientId" element={<SubscriptionRedirect />} />
