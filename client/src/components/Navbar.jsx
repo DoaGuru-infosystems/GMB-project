@@ -86,17 +86,22 @@ const Navbar = () => {
     });
   }, { scope: sidebarRef });
 
-  const navItems = [
-    { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={18} /> },
-    { name: 'Reviews', path: '/admin/reviews', icon: <MessageSquare size={18} /> },
-    ...(user?.role === 'admin' ? [
-      { name: 'Clients', path: '/admin/clients', icon: <Users size={18} /> },
-      { name: 'Notifications', path: '/admin/notifications', icon: <Bell size={18} /> },
-      { name: 'Subscriptions', path: '/admin/subscriptions', icon: <CreditCard size={18} /> }
-    ] : []),
-    { name: 'QR Codes', path: '/admin/qrcode', icon: <QrCode size={18} /> },
-    { name: 'Settings', path: '/admin/settings', icon: <Settings size={18} /> },
-  ];
+  const navItems = user?.role === 'client' 
+    ? [
+        { name: 'Dashboard', path: '/client/dashboard', icon: <LayoutDashboard size={18} /> },
+        { name: 'Reviews', path: '/client/reviews', icon: <MessageSquare size={18} /> },
+        { name: 'QR Code', path: '/client/qrcode', icon: <QrCode size={18} /> },
+        { name: 'Profile', path: '/client/settings', icon: <Settings size={18} /> },
+      ]
+    : [
+        { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={18} /> },
+        { name: 'Reviews', path: '/admin/reviews', icon: <MessageSquare size={18} /> },
+        { name: 'Clients', path: '/admin/clients', icon: <Users size={18} /> },
+        { name: 'Notifications', path: '/admin/notifications', icon: <Bell size={18} /> },
+        { name: 'Subscriptions', path: '/admin/subscriptions', icon: <CreditCard size={18} /> },
+        { name: 'QR Codes', path: '/admin/qrcode', icon: <QrCode size={18} /> },
+        { name: 'Settings', path: '/admin/settings', icon: <Settings size={18} /> },
+      ];
 
   const branding = {
     primary: user?.primaryColor || '#2563eb',

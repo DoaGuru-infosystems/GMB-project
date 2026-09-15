@@ -10,6 +10,7 @@ const QRPage = () => {
   const [qrData, setQrData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deactivatedInfo, setDeactivatedInfo] = useState(null);
 
   useEffect(() => {
     const fetchQR = async () => {
@@ -18,7 +19,14 @@ const QRPage = () => {
         const data = await qrService.generateQRCode();
         setQrData(data);
       } catch (err) {
-        setError(err.message || 'Failed to load QR Configuration');
+        if (err?.isDeactivated) {
+          setDeactivatedInfo({
+            message: err.message || "Your account is deactivated. Please contact Doaguru Support team.",
+            supportNumber: err.supportNumber || "+91 70001 02121"
+          });
+        } else {
+          setError(err.message || 'Failed to load QR Configuration');
+        }
       } finally {
         setLoading(false);
       }
@@ -54,6 +62,44 @@ const QRPage = () => {
         <div className="flex flex-col items-center justify-center min-h-[400px]">
           <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
           <p className="text-slate-600 font-medium">Generating your unique QR configuration...</p>
+        </div>
+      ) : deactivatedInfo ? (
+        <div className="max-w-md mx-auto bg-white rounded-3xl shadow-xl p-8 text-center border border-red-100 flex flex-col items-center">
+          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4 ring-8 ring-red-50/50">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">
+            Account Deactivated
+          </h2>
+          
+          <p className="text-slate-600 text-sm mb-6 leading-relaxed">
+            {deactivatedInfo.message}
+          </p>
+
+          <div className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl p-5 flex flex-col items-center gap-3">
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Doaguru Support Helpline</span>
+            <a 
+              href={`tel:${deactivatedInfo.supportNumber.replace(/\s+/g, '')}`}
+              className="inline-flex items-center gap-2 text-xl font-black text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              {deactivatedInfo.supportNumber}
+            </a>
+            
+            <a 
+              href={`https://wa.me/${deactivatedInfo.supportNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent("Hello Doaguru Support, my review account is currently deactivated. Please assist.")}`}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full mt-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+            >
+              <span>Chat on WhatsApp</span>
+            </a>
+          </div>
         </div>
       ) : error ? (
         <div className="bg-red-50 text-red-600 p-6 rounded-2xl border border-red-200">

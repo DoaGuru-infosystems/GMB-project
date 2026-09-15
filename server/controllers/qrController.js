@@ -17,6 +17,7 @@ exports.generateQRCode = async (req, res) => {
         if (clientId !== 'admin') {
             const [rows] = await db.promise().query(
                 `SELECT 
+                    c.is_active as isActive,
                     b.business_name as businessName, 
                     bb.logo, 
                     b.website_url as websiteUrl 
@@ -27,6 +28,13 @@ exports.generateQRCode = async (req, res) => {
                 [clientId]
             );
             if (rows && rows.length > 0) {
+                if (!rows[0].isActive) {
+                    return res.status(403).json({
+                        isDeactivated: true,
+                        message: "Your account is deactivated. Please contact Doaguru Support team.",
+                        supportNumber: "+91 70001 02121"
+                    });
+                }
                 businessDetails = {
                     businessName: rows[0].businessName || businessDetails.businessName,
                     logo: rows[0].logo || null,
