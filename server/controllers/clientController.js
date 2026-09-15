@@ -355,17 +355,28 @@ exports.getPublicClientProfile = async (req, res) => {
     try {
         const [clientRows] = await connection.query(`
             SELECT 
-                c.id, c.clientId,
+                c.id, c.clientId, c.is_active as isActive,
                 b.business_name as businessName, b.website_url as websiteUrl,
                 bb.logo, bb.primary_color as primaryColor, bb.secondary_color as secondaryColor
             FROM clients c
             LEFT JOIN businesses b ON b.client_id = c.id
             LEFT JOIN business_branding bb ON bb.business_id = b.id
-            WHERE c.clientId = ? AND c.is_active = 1
+            WHERE c.clientId = ?
         `, [clientId]);
 
         if (clientRows.length === 0) return res.status(404).json({ message: "Client not found" });
         const client = clientRows[0];
+
+        if (!client.isActive) {
+            return res.status(403).json({
+                isDeactivated: true,
+                message: "Your account is deactivated. Please contact Doaguru Support team.",
+                supportNumber: "+91 70001 02121",
+                businessName: client.businessName,
+                logo: client.logo
+            });
+        }
+
         const clientDbId = client.id;
 
         // Fetch keywords from keywords table

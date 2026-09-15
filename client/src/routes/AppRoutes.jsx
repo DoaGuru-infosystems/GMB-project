@@ -48,6 +48,7 @@ const AppRoutes = () => {
 
         {/* Admin Authentication */}
         <Route path="/admin/login" element={<Login />} />
+        <Route path="/login" element={<Login />} />
 
         {/* Admin Protected Routes (using Navbar as Layout) */}
         <Route path="/admin" element={<Navbar />}>
@@ -61,6 +62,15 @@ const AppRoutes = () => {
           <Route path="settings" element={<Settings />} />
           <Route path="subscriptions" element={<SubscriptionManagement />} />
           <Route path="notifications" element={<Notifications />} />
+        </Route>
+
+        {/* Client Protected Routes (using Navbar as Layout) */}
+        <Route path="/client" element={<Navbar />}>
+          <Route index element={<Navigate to="/client/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="reviews" element={<Reviews />} />
+          <Route path="qrcode" element={<QRPage />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </Suspense>
