@@ -19,6 +19,8 @@ const Login = () => {
       // Check if user needs subscription
       if (response.needsSubscription) {
         navigate(`/subscription/${response.clientId}`);
+      } else if (response.role === 'client') {
+        navigate('/client/dashboard');
       } else {
         navigate('/admin/dashboard');
       }
@@ -37,8 +39,8 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 text-center ring-1 ring-slate-100">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">Admin Login</h1>
-        <p className="text-slate-500 mb-6">Enter your credentials to access the dashboard</p>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">Login</h1>
+        <p className="text-slate-500 mb-6">Enter your credentials to access your account</p>
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 text-red-500 text-sm font-semibold rounded-xl border border-red-100 animate-in fade-in slide-in-from-top-2">

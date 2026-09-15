@@ -282,14 +282,22 @@ ${antiAiRules}`
   const prompt = promptMap[language] || promptMap.english;
 
   const apiKey = process.env.OPENAI_API_KEY;
-  const isCustomKey = apiKey && apiKey.startsWith('sk-or-');
-  const apiUrl = isCustomKey
-    ? 'https://openrouter.ai/api/v1/chat/completions'
-    : 'https://api.openai.com/v1/chat/completions';
-  const apiModel = isCustomKey ? "openai/gpt-3.5-turbo" : "gpt-3.5-turbo";
+  const isHfKey = apiKey && apiKey.startsWith('hf_');
+  const isOpenRouterKey = apiKey && apiKey.startsWith('sk-or-');
+
+  let apiUrl = 'https://api.openai.com/v1/chat/completions';
+  let apiModel = 'gpt-3.5-turbo';
+
+  if (isHfKey) {
+    apiUrl = 'https://router.huggingface.co/v1/chat/completions';
+    apiModel = 'meta-llama/Llama-3.1-8B-Instruct';
+  } else if (isOpenRouterKey) {
+    apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
+    apiModel = 'openai/gpt-3.5-turbo';
+  }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 6000);
+  const timeoutId = setTimeout(() => controller.abort(), 12000);
 
   try {
     const response = await fetch(apiUrl, {
