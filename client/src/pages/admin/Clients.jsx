@@ -250,6 +250,17 @@ const Clients = () => {
               <XCircle size={28} />
             </button>
 
+            {!selectedQrClient.isActive && (
+              <div className="w-full mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 text-amber-900 text-sm font-medium">
+                <span className="text-2xl">⚠️</span>
+                <div>
+                  <strong className="block font-bold text-amber-950">Client is Currently Deactivated</strong>
+                  <span>Anyone scanning this QR or opening the link will see: </span>
+                  <span className="font-bold underline">"Your account is deactivated. Please contact Doaguru Support team (+91 70001 02121)"</span>
+                </div>
+              </div>
+            )}
+
             <div className="w-full">
               <QRCodeDisplay
                 targetUrl={`${window.location.origin}/review/${selectedQrClient.clientId}`}
