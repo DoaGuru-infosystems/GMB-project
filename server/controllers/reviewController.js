@@ -322,6 +322,7 @@ exports.generateReview = async (req, res) => {
   const antiAiRules = `
 STRICT OUTPUT RULES. These are non-negotiable:
 - The business name in this review MUST be exactly: ${bizName || 'the business'}. Do NOT replace it with XYZ, ABC, [Business Name], *Business Name*, or any other placeholder.
+- MANDATORY TARGET SEO KEYWORD: You MUST visibly and explicitly include the target SEO keyword "${targetKeywordsStr}" in the review text. Do NOT omit, drop, or replace this target keyword. The review is incomplete without it.
 - Do NOT use any emojis, icons, stars, or special symbols (like 🌟, 👍, 😊, ★, etc.). Use only plain text.
 - Do not use double quotes anywhere. Not even once.
 - Do not use em dash or en dash. No special dash characters.
@@ -336,14 +337,14 @@ STRICT OUTPUT RULES. These are non-negotiable:
   const promptMap = {
     english: `You are writing a natural, simple, and highly realistic Google review on behalf of a genuine customer.
 The business being reviewed is called: ${bizName || "the business"}
-Target SEO keyword(s) to naturally include (1-2 keywords): ${targetKeywordsStr || "services"}
+Target SEO keyword(s) to include (MANDATORY): ${targetKeywordsStr || "services"}
 The customer answered the following feedback questions about their experience:
 ${formattedFeedback || "- Positive experience with the team"}
 
 Instructions:
 - Write a natural, simple, and highly realistic review. Start directly with the business name or a natural statement about your experience.
+- MANDATORY: Visibly and explicitly incorporate the target SEO keyword "${targetKeywordsStr}" in the text.
 - Naturally reflect the customer's specific answers and sentiments from the feedback questions provided above.
-- Naturally integrate the target SEO keyword "${targetKeywordsStr}" and the exact business name "${bizName || 'the business'}" into the sentences without feeling forced.
 - Avoid template-like starters such as "Honestly", "Really happy with", "Just had to say", "Big shoutout to". 
 - Avoid cliché phrases and literal idioms like "without a second thought" or "without thinking twice". Do NOT always write recommendation sentences like "highly recommend them" or "highly recommended" at the end of every review. Real customer reviews vary.
 - Vary the ending style dynamically: sometimes end naturally with a sentence describing the staff, service quality, or execution without concluding templates; sometimes express satisfaction or returning.
@@ -354,15 +355,14 @@ ${antiAiRules}`,
 DO NOT write in pure English. Pure English output is completely forbidden and invalid.
 
 The business being reviewed is: ${bizName || "the business"}
-Target SEO keyword(s) to include naturally: ${targetKeywordsStr || "services"}
+Target SEO keyword(s) to include (MANDATORY): ${targetKeywordsStr || "services"}
 Customer Feedback details from their visit / purchase:
 ${formattedFeedback || "- Positive experience with the team"}
 
 Hinglish Writing Rules:
 - The grammatical sentence structure of EVERY sentence MUST be conversational Hindi, written in English letters.
-  Example pattern:
-  "${bizName} ke sath experience kaafi accha raha. Yahan ki team aur staff kaafi helpful aur responsive hai. Inka kaam properly handle hua aur services reliable lagi."
-- Naturally weave in whatever answers the customer chose in the feedback form into their personal experience.
+- MANDATORY KEYWORD INCLUSION: The review MUST visibly contain the target SEO keyword "${targetKeywordsStr}". Do not miss it. Example: "${bizName} ke sath experience kaafi accha raha... ${targetKeywordsStr} ke liye yeh reliable jagah hai."
+- Naturally weave in whatever answers the customer chose in the feedback form alongside the target keyword.
 - Seamlessly fit the exact business name "${bizName || 'the business'}" and target keyword "${targetKeywordsStr}".
 - 2 to 4 natural sentences. Do not use crude street slang ("Yaar", "Bhai", "bina soche samjhe"). Keep it authentic, mature, and realistic.
 - Avoid repeating the same ending cliché ("highly recommend", "must visit") in every generation. Keep the ending natural and varied.
@@ -370,14 +370,15 @@ ${antiAiRules}`,
 
     hindi: `आप एक वास्तविक ग्राहक की ओर से Google Maps के लिए एक स्वाभाविक और सहज हिंदी (Devanagari) समीक्षा लिख रहे हैं।
 व्यवसाय का नाम: ${bizName || "यह संस्थान"}
-शामिल करने योग्य मुख्य विषय/कीवर्ड: ${targetKeywordsStr || "उत्कृष्ट सेवाएं"}
+अनिवार्य टारगेट SEO कीवर्ड (Target Keywords): ${targetKeywordsStr || "उत्कृष्ट सेवाएं"}
 ग्राहक के अनुभव और फॉर्म में चुने गए उत्तर:
 ${formattedFeedback || "- बहुत अच्छा अनुभव रहा"}
 
 हिंदी भाषा और शैली के आवश्यक नियम:
+- MANDATORY KEYWORD INCLUSION: दिए गए मुख्य टारगेट कीवर्ड "${targetKeywordsStr}" को समीक्षा में अवश्य (COMPULSORY) शामिल करें। टारगेट कीवर्ड समीक्षा में साफ-साफ दिखना चाहिए (जैसे: '...के लिए यह एक विश्वसनीय ${targetKeywordsStr} साबित हुआ' या '...के लिए यह ${targetKeywordsStr} बेहतरीन विकल्प है')। ध्यान रखें कि कीवर्ड के अंदर पहले से शहर का नाम हो तो वाक्य में वही शहर दोबारा लगातार रिपीट न करें। इसे छोड़ना सख्त मना है।
 - समीक्षा आम बोलचाल की सहज हिंदी (देवनागरी लिपि) में होनी चाहिए, जैसे वास्तविक लोग Google पर स्वाभाविक रिव्यू लिखते हैं।
 - बिल्कुल भी किताबी, कठिन या गूगल ट्रांसलेट जैसी अनुवादित अजीब भाषा न लिखें (जैसे शाब्दिक मशीनी अनुवाद न करें; बोलचाल के सामान्य शब्दों जैसे टीम, स्टाफ, सर्विस, काम, सुविधा आदि का सहज प्रयोग करें)।
-- ग्राहक ने फॉर्म में जो भी विकल्प चुने हैं, उन्हें समीक्षा के वाक्यों में स्वाभाविक रूप से पिरोएं।
+- ग्राहक ने फॉर्म में जो भी विकल्प चुने हैं, उन्हें टारगेट कीवर्ड के साथ समीक्षा के वाक्यों में स्वाभाविक रूप से पिरोएं।
 - व्यवसाय का नाम "${bizName || 'यह संस्थान'}" जैसा है वैसा ही लिखें।
 - वाक्य रचना 2 से 4 वाक्यों की होनी चाहिए। बनावटी तारीफ या हर बार एक जैसा घिसा-पिटा अंत करने से बचें।
 ${antiAiRules}`
@@ -451,7 +452,7 @@ ${antiAiRules}`
           },
         ],
         max_tokens: 350,
-        temperature: 0.85,
+        temperature: 0.7,
       }),
       signal: controller.signal,
     });
