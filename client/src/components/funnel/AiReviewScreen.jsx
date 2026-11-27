@@ -103,7 +103,7 @@ const LOADING_STEPS = [
   "Formatting review style..."
 ];
 
-const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKeywords, websiteUrl, onPrivateFeedback }) => {
+const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKeywords, websiteUrl, onPrivateFeedback, clientId, feedbackDetails }) => {
   const [phase, setPhase] = useState('select'); // 'select' | 'generating' | 'ready'
   const [selectedLang, setSelectedLang] = useState(null);
   const [reviewText, setReviewText] = useState('');
@@ -127,23 +127,24 @@ const AiReviewScreen = ({ selectedKeywords, onPostGoogle, businessName, clientKe
     setPhase('generating');
 
     try {
-      // Only send customer-selected keywords to AI — not all admin keywords
-      const contextKeywords = selectedKeywords.filter(Boolean).join(', ');
-      console.log('[AiReviewScreen] businessName prop:', businessName);
-      console.log('[AiReviewScreen] contextKeywords (selected only):', contextKeywords);
+      const payload = {
+        clientId,
+        businessName,
+        language: langKey,
+        feedbackDetails: feedbackDetails || []
+      };
+      console.log('[AiReviewScreen] Generating review with payload:', payload);
       
-      // Make API call (with backend 6s timeout implemented)
-      const data = await reviewService.generateReview(contextKeywords, businessName, langKey);
+      const data = await reviewService.generateReview(payload);
       setReviewText(data.generatedReview);
     } catch (err) {
       console.error('[AiReviewScreen] Failed to generate review:', err);
-      const fallbackKeys = selectedKeywords.length > 0 ? selectedKeywords.join(', ') : (clientKeywords || 'services');
       const bName = businessName || 'the team';
       
       // Dynamic fallback mapping in case of timeout or API failure
       const fallbackMap = {
         hindi: `दिल से कहूं तो ${bName} का काम सच में लाजवाब है। यहाँ की सेवा बहुत शानदार थी और स्टाफ का व्यवहार बेहद मददगार रहा। मैं दूसरों को यहाँ आने की सलाह दूँगा!`,
-        hinglish: `${bName} ka experience really amazing tha! Service ekdum first-class thi. Highly recommend karta hoon!`,
+        hinglish: `${bName} ka experience really amazing tha! Service ekdum first-class thi aur staff bhi supportive raha. Highly recommend karta hoon!`,
         english: `I had an amazing experience with ${bName}! Their services were outstanding and the team was super professional. Highly recommend!`,
       };
       setReviewText(fallbackMap[langKey] || fallbackMap.english);

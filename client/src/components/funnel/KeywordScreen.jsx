@@ -151,21 +151,37 @@ const KeywordScreen = ({ onNext, customQuestions, logo: clientLogo, colors, busi
 
   const handleGenerate = () => {
     let allKeywords = [];
+    let feedbackDetails = [];
 
     if (isCustomMode) {
-      // Collect all selected options from all questions
-      Object.values(selectedAnswers).forEach(options => {
-        allKeywords = [...allKeywords, ...options];
+      customQuestions.forEach((q, idx) => {
+        const answers = selectedAnswers[idx] || [];
+        if (answers.length > 0) {
+          allKeywords.push(...answers);
+          feedbackDetails.push({
+            question: q.question,
+            answers: answers
+          });
+        }
       });
     } else {
-      allKeywords = [
-        selectedService,
-        ...selectedSubServices,
-        ...selectedImpacts
-      ].filter(Boolean);
+      const parts = [
+        { question: "Service Selected", answers: [selectedService].filter(Boolean) },
+        { question: "Specific Areas", answers: selectedSubServices },
+        { question: "Positive Impacts", answers: selectedImpacts }
+      ];
+      parts.forEach(p => {
+        if (p.answers.length > 0) {
+          allKeywords.push(...p.answers);
+          feedbackDetails.push(p);
+        }
+      });
     }
 
-    onNext(allKeywords);
+    onNext({
+      flatAnswers: allKeywords,
+      feedbackDetails: feedbackDetails
+    });
   };
 
   const toggleCustomAnswer = (qIndex, option) => {

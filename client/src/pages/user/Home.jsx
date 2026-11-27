@@ -22,6 +22,7 @@ const Home = () => {
   const [rating, setRating] = useState(0);
   const [, setFeedback] = useState(null);
   const [keywords, setKeywords] = useState([]);
+  const [feedbackDetails, setFeedbackDetails] = useState([]);
   const [clientProfile, setClientProfile] = useState(null);
   const [deactivatedInfo, setDeactivatedInfo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -102,8 +103,14 @@ const Home = () => {
     setStep('thank_you');
   };
 
-  const handleKeywordsSubmit = (selectedKeywords) => {
-    setKeywords(selectedKeywords);
+  const handleKeywordsSubmit = (data) => {
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      setKeywords(data.flatAnswers || []);
+      setFeedbackDetails(data.feedbackDetails || []);
+    } else {
+      setKeywords(Array.isArray(data) ? data : []);
+      setFeedbackDetails([]);
+    }
     setStep('ai_review');
   };
 
@@ -237,6 +244,8 @@ const Home = () => {
             <motion.div key="ai_review" className="flex-1 flex flex-col justify-center">
               <AiReviewScreen
                 selectedKeywords={keywords}
+                feedbackDetails={feedbackDetails}
+                clientId={clientId}
                 onPostGoogle={handlePostGoogle}
                 businessName={clientProfile?.businessName}
                 clientKeywords={clientProfile?.keywords}

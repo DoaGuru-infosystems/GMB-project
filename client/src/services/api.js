@@ -96,13 +96,12 @@ export const reviewService = {
     }
   },
 
-  generateReview: async (keywords, businessName, language = "english") => {
+  generateReview: async (payloadOrKeywords, businessName, language = "english") => {
     try {
-      const response = await api.post("/review/generate", {
-        keywords,
-        businessName,
-        language,
-      });
+      const body = (typeof payloadOrKeywords === 'object' && payloadOrKeywords !== null && !Array.isArray(payloadOrKeywords))
+        ? payloadOrKeywords
+        : { keywords: payloadOrKeywords, businessName, language };
+      const response = await api.post("/review/generate", body);
       return response.data; // { generatedReview: "..." }
     } catch (error) {
       console.error("API error during generateReview:", error);
