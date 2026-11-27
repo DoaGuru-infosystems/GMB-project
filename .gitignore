@@ -24,6 +24,7 @@ build/
 Thumbs.db
 .gitignore
 .graphifyignore
+
 # Logs
 npm-debug.log*
 yarn-debug.log*
@@ -37,5 +38,7 @@ server/uploads/*
 # Temporary files
 .tmp/
 temp/
+config.bat
+
 # Graphify cache/temp
 graphify-out/

@@ -4,7 +4,7 @@ module.exports = (req, res, next) => {
     const clientId = req.user.clientId || req.user.clientID;
     if (!clientId) return res.status(401).json({ message: "Invalid payload" });
 
-    db.query("SELECT isActive FROM clients WHERE clientId = ?", [clientId], (err, results) => {
+    db.query("SELECT is_active as isActive FROM clients WHERE clientId = ?", [clientId], (err, results) => {
         if (err || results.length === 0) {
             return res.status(403).json({ message: "Client not found or db error" });
         }

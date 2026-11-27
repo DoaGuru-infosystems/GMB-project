@@ -358,28 +358,30 @@ const DashboardPage = () => {
   );
 
   return (
-    <div ref={containerRef} className="space-y-8 pb-10 font-sans">
+    <div ref={containerRef} className="space-y-6 pb-10 font-sans">
+      {/* Page Title & Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 dashboard-anim">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard Overview</h1>
-          <p className="text-slate-500 font-medium tracking-tight">Monitoring customer satisfaction in real-time.</p>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full mb-2.5 inline-block">Real-time metrics</span>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 bg-gradient-to-r from-slate-900 to-indigo-950 bg-clip-text text-transparent">Dashboard Overview</h1>
+          <p className="text-slate-500 text-xs font-semibold mt-1">Monitoring customer satisfaction and review velocity in real-time.</p>
         </div>
 
         <div className="flex items-center gap-3">
           {timeRange === 'Custom Range' && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => updateUrlParams('startDate', e.target.value)}
-                className="bg-white px-3 py-2.5 rounded-xl border border-slate-200 shadow-sm text-sm font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-sans"
+                className="bg-transparent px-2.5 py-1.5 text-xs font-semibold text-slate-700 outline-none transition-all font-sans"
               />
-              <span className="text-slate-500 font-medium text-sm">to</span>
+              <span className="text-slate-300 font-medium text-xs">to</span>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => updateUrlParams('endDate', e.target.value)}
-                className="bg-white px-3 py-2.5 rounded-xl border border-slate-200 shadow-sm text-sm font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-sans"
+                className="bg-transparent px-2.5 py-1.5 text-xs font-semibold text-slate-700 outline-none transition-all font-sans"
               />
             </div>
           )}
@@ -387,19 +389,19 @@ const DashboardPage = () => {
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className={`flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border shadow-sm text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors ${timeRange === 'Custom Range' ? 'border-emerald-500 ring-1 ring-emerald-500 lg:w-[150px] justify-between' : 'border-slate-200'}`}
+              className={`flex items-center gap-2 bg-white px-4 py-2 border text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-xl ${timeRange === 'Custom Range' ? 'border-emerald-500 ring-2 ring-emerald-500/10 lg:w-[150px] justify-between' : 'border-slate-100'}`}
             >
               {timeRange}
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}><path d="m6 9 6 6 6-6" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}><path d="m6 9 6 6 6-6" /></svg>
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-10">
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-[0_10px_25px_rgba(0,0,0,0.05)] border border-slate-100 py-1.5 z-10 animate-in fade-in slide-in-from-top-1 duration-150">
                 {['This Month', 'Last Month', 'Last 3 Months', 'Last 6 Months', 'Last 12 Months', 'Custom Range'].map(option => (
                   <button
                     key={option}
                     onClick={() => handleTimeRangeChange(option)}
-                    className={`w-full text-left px-4 py-2 text-sm ${timeRange === option ? 'bg-primary/10 text-primary font-semibold' : 'text-slate-700 hover:bg-slate-50 font-medium'} transition-colors`}
+                    className={`w-full text-left px-4 py-2 text-xs ${timeRange === option ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 font-semibold'} transition-colors`}
                   >
                     {option}
                   </button>
@@ -407,34 +409,29 @@ const DashboardPage = () => {
               </div>
             )}
           </div>
-
-          {/* <button className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
-            <Download size={16} />
-            Export CSV
-          </button> */}
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm dashboard-anim">
-            <div className="flex justify-between items-start mb-4">
+          <div key={i} className="bg-white/95 backdrop-blur-md p-6 rounded-2xl border border-slate-100/80 shadow-[0_8px_30px_rgba(0,0,0,0.015)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.03)] hover:-translate-y-0.5 transition-all duration-350 dashboard-anim">
+            <div className="flex justify-between items-start mb-2">
               <div>
-                <h3 className="text-slate-500 text-sm font-medium tracking-tight mb-2">{stat.label}</h3>
-                <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
+                <h3 className="text-slate-400 text-[10px] font-black uppercase tracking-widest">{stat.label}</h3>
+                <p className="text-3xl font-black text-slate-800 tracking-tight mt-2">{stat.value}</p>
               </div>
-              <div className={`${stat.iconBg} ${stat.iconColor} p-3 rounded-xl`}>
-                <stat.icon size={20} />
+              <div className={`${stat.iconBg} ${stat.iconColor} p-2.5 rounded-xl border border-current/5 shadow-sm`}>
+                <stat.icon size={18} />
               </div>
             </div>
             {stat.trend && (
-              <div className={`text-sm font-medium mt-auto ${stat.trendColor}`}>
+              <div className={`text-[10px] font-bold mt-4 border-t border-slate-50 pt-2.5 ${stat.trendColor}`}>
                 {stat.trend}
               </div>
             )}
             {stat.sub && (
-              <div className="text-sm font-medium mt-auto text-slate-400">
+              <div className="text-[10px] font-bold mt-4 border-t border-slate-50 pt-2.5 text-slate-400">
                 {stat.sub}
               </div>
             )}
@@ -442,22 +439,30 @@ const DashboardPage = () => {
         ))}
       </div>
 
+      {/* Charts section */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 md:gap-8">
         {/* Analytics Chart */}
-        <div className="xl:col-span-2 bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200 dashboard-anim overflow-hidden">
-          <div className="flex items-center justify-between mb-4 md:mb-8">
-            <h3 className="text-lg font-bold text-slate-900">Monthly Performance</h3>
+        <div className="xl:col-span-2 bg-white/95 backdrop-blur-md rounded-2xl p-5 md:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.015)] border border-slate-100/80 dashboard-anim overflow-hidden">
+          <div className="flex items-center gap-2.5 mb-6 md:mb-8">
+            <span className="w-1.5 h-3 bg-indigo-500 rounded-full" />
+            <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Monthly Performance</h3>
           </div>
-          <div className="h-[280px] md:h-[360px] w-full overflow-x-auto overflow-y-hidden scrollbar-hide">
+          <div className="h-[280px] md:h-[350px] w-full overflow-x-auto overflow-y-hidden scrollbar-hide">
             <div style={{ minWidth: Math.max(sortedTrendData.length * 60, 500) + 'px', height: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={sortedTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 40 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <defs>
+                    <linearGradient id="colorReviews" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.7}/>
+                      <stop offset="95%" stopColor="#60a5fa" stopOpacity={0.15}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis
                     dataKey="name"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: '#64748b', fontSize: 11 }}
+                    tick={{ fill: '#64748b', fontSize: 10, fontWeight: 'bold' }}
                     angle={-45}
                     textAnchor="end"
                     dy={10}
@@ -465,30 +470,40 @@ const DashboardPage = () => {
                   <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: '#64748b', fontSize: 12 }}
+                    tick={{ fill: '#64748b', fontSize: 10, fontWeight: 'bold' }}
                     allowDecimals={false}
                   />
                   <Tooltip
-                    cursor={{ fill: 'var(--color-slate-50)' }}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    cursor={{ fill: 'rgba(241, 245, 249, 0.4)' }}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.04)' }}
                   />
-                  <Bar dataKey="reviews" name="Reviews" fill="#93c5fd" radius={[2, 2, 0, 0]} barSize={32} />
+                  <Bar dataKey="reviews" name="Reviews" fill="url(#colorReviews)" radius={[4, 4, 0, 0]} barSize={28} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-slate-200 dashboard-anim">
-          <h3 className="text-lg font-bold text-slate-900 mb-4 md:mb-6">Rating Distribution</h3>
+        {/* Rating Distribution Card */}
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-5 md:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.015)] border border-slate-100/80 dashboard-anim">
+          <div className="flex items-center gap-2.5 mb-4 md:mb-6">
+            <span className="w-1.5 h-3 bg-purple-500 rounded-full" />
+            <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Rating Distribution</h3>
+          </div>
           <div className="h-[250px] md:h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={ratingDistribution} layout="vertical" margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--color-slate-200)" />
-                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-slate-500)' }} />
-                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-slate-900)', fontSize: 12 }} width={60} />
-                <Tooltip cursor={{ fill: 'var(--color-slate-50)' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }} />
-                <Bar dataKey="count" fill="var(--color-secondary)" radius={[0, 4, 4, 0]} barSize={20} />
+                <defs>
+                  <linearGradient id="colorRating" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                    <stop offset="100%" stopColor="#a855f7" stopOpacity={0.3}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10, fontWeight: 'bold' }} />
+                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#0f172a', fontSize: 10, fontWeight: 'bold' }} width={60} />
+                <Tooltip cursor={{ fill: 'rgba(241, 245, 249, 0.4)' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.04)' }} />
+                <Bar dataKey="count" fill="url(#colorRating)" radius={[0, 4, 4, 0]} barSize={16} />
               </BarChart>
             </ResponsiveContainer>
           </div>

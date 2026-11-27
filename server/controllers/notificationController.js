@@ -1,7 +1,7 @@
 const db = require("../config/db");
 const { sendEmail } = require("../utils/emailService");
 
-// For Cron Job (Automatic)
+// For Cron Job (Automatic Expiry Reminder)
 exports.sendExpiryReminder = async () => {
     console.log("Checking for expiring subscriptions...");
     const daysAhead = 3; // Remind 3 days before expiry
@@ -9,16 +9,18 @@ exports.sendExpiryReminder = async () => {
         SELECT 
             s.id as subscriptionId,
             s.end_date,
+            c.id as clientDbId,
             c.clientId,
             c.name as clientName,
             c.email as clientEmail,
-            c.businessName,
-            p.name as planName
+            b.business_name as businessName,
+            p.plan_name as planName
         FROM subscriptions s
-        JOIN clients c ON s.clientId = c.clientId
-        JOIN subscription_plans p ON s.planId = p.id
+        JOIN clients c ON s.client_id = c.id
+        LEFT JOIN businesses b ON b.client_id = c.id
+        JOIN subscription_plans p ON s.plan_id = p.id
         WHERE s.status = 'active'
-          AND c.isActive = 1
+          AND c.is_active = 1
           AND DATEDIFF(s.end_date, NOW()) = ?
     `;
 
@@ -52,8 +54,8 @@ exports.sendExpiryReminder = async () => {
             if (success) {
                 const notifMsg = `AUTOMATIC REMINDER: Renewal email sent to ${sub.clientName} for ${sub.planName} plan. Expiry in ${daysAhead} days.`;
                 db.query(
-                    "INSERT INTO notifications (clientId, type, message, is_read) VALUES (?, ?, ?, 0)",
-                    [sub.clientId, 'renewal_reminder', notifMsg],
+                    "INSERT INTO notifications (client_id, type, message, is_read) VALUES (?, ?, ?, 0)",
+                    [sub.clientDbId, 'renewal_reminder', notifMsg],
                     (err) => { if (err) console.error("Error logging notification:", err); }
                 );
             }
@@ -69,14 +71,16 @@ exports.sendManualReminder = async (req, res) => {
         SELECT 
             s.id as subscriptionId,
             s.end_date,
+            c.id as clientDbId,
             c.name as clientName,
             c.email as clientEmail,
-            c.businessName,
-            p.name as planName,
+            b.business_name as businessName,
+            p.plan_name as planName,
             DATEDIFF(s.end_date, NOW()) as daysLeft
         FROM subscriptions s
-        JOIN clients c ON s.clientId = c.clientId
-        JOIN subscription_plans p ON s.planId = p.id
+        JOIN clients c ON s.client_id = c.id
+        LEFT JOIN businesses b ON b.client_id = c.id
+        JOIN subscription_plans p ON s.plan_id = p.id
         WHERE c.clientId = ? AND s.id = ?
     `;
 
@@ -105,8 +109,8 @@ exports.sendManualReminder = async (req, res) => {
             // Log to notifications table
             const notifMsg = `MANUAL REMINDER: Admin sent renewal follow-up to ${sub.clientName}. Plan: ${sub.planName}.`;
             db.query(
-                "INSERT INTO notifications (clientId, type, message, is_read) VALUES (?, ?, ?, 0)",
-                [clientId, 'renewal_reminder', notifMsg],
+                "INSERT INTO notifications (client_id, type, message, is_read) VALUES (?, ?, ?, 0)",
+                [sub.clientDbId, 'renewal_reminder', notifMsg],
                 (err) => { if (err) console.error("Error logging notification:", err); }
             );
 

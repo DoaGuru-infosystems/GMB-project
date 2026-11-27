@@ -108,7 +108,10 @@ const ReviewForm = ({ onRatingChange, clientId }) => {
               type="tel"
               {...register("phone", {
                 required: "Phone number is required",
-                pattern: { value: /^[6-9]\d{9}$/, message: "Invalid 10-digit number" }
+                pattern: { value: /^[6-9]\d{9}$/, message: "Invalid 10-digit number" },
+                onChange: (e) => {
+                  e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                }
               })}
               maxLength={10}
               className={`w-full pl-12 pr-4 py-4 bg-slate-50/70 hover:bg-slate-50 border-2 ${errors.phone ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 'border-slate-100 hover:border-slate-200 focus:border-primary focus:ring-primary/20'} rounded-2xl text-[15px] outline-none focus:ring-4 transition-all font-semibold text-slate-800 placeholder:text-slate-400 placeholder:font-medium shadow-sm`}

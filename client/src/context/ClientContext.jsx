@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback, useRef } from 'react';
 import { adminService } from '../services/api';
 
 const ClientContext = createContext();
@@ -10,8 +10,17 @@ export const ClientProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchClients = async (force = false) => {
-    if (!force && clients.length > 0 && !error) {
+  // Keep references to latest state to avoid fetchClients dependency changes
+  const clientsRef = useRef(clients);
+  const errorRef = useRef(error);
+
+  useEffect(() => {
+    clientsRef.current = clients;
+    errorRef.current = error;
+  }, [clients, error]);
+
+  const fetchClients = useCallback(async (force = false) => {
+    if (!force && clientsRef.current.length > 0 && !errorRef.current) {
       setLoading(false);
       return;
     }
@@ -27,7 +36,7 @@ export const ClientProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // We don't fetch clients here automatically anymore to prevent 403 for client roles
   // Each component that needs clients should call fetchClients explicitly

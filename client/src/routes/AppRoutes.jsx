@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
 
 // Center Spinner Component for Loading Fallback
 const LoadingFallback = () => (
@@ -26,33 +26,51 @@ const SubscriptionManagement = lazy(() => import('../pages/admin/SubscriptionMan
 const Notifications = lazy(() => import('../pages/admin/Notifications'));
 const Navbar = lazy(() => import('../components/Navbar'));
 
+const RedirectOldReview = () => {
+  const { clientId } = useParams();
+  const { search } = useLocation();
+  return <Navigate to={`/review${clientId ? `/${clientId}` : ''}${search}`} replace />;
+};
+
 const AppRoutes = () => {
   return (
-    <Suspense fallback={ <LoadingFallback /> }>
+    <Suspense fallback={<LoadingFallback />}>
       <Routes>
-        {/* Public Funnel Routes */ }
-        <Route path="/" element={ <Navigate to="/admin/login" replace /> } />
-        <Route path="/review" element={ <Home /> } />
-        <Route path="/review/:clientId" element={ <Home /> } />
-        <Route path="/thank-you" element={ <ThankYou /> } />
-        <Route path="/redirect" element={ <Redirect /> } />
-        <Route path="/subscription/:clientId" element={ <SubscriptionRedirect /> } />
+        {/* Public Funnel Routes */}
+        <Route path="/" element={<Navigate to="/review?clientId=admin" replace />} />
+        <Route path="/review" element={<Home />} />
+        <Route path="/review/:clientId" element={<Home />} />
+        <Route path="/review-doaguru" element={<RedirectOldReview />} />
+        <Route path="/review-doaguru/:clientId" element={<RedirectOldReview />} />
+        <Route path="/thank-you" element={<ThankYou />} />
+        <Route path="/redirect" element={<Redirect />} />
+        <Route path="/subscription/:clientId" element={<SubscriptionRedirect />} />
 
-        {/* Admin Authentication */ }
-        <Route path="/admin/login" element={ <Login /> } />
+        {/* Admin Authentication */}
+        <Route path="/admin/login" element={<Login />} />
+        <Route path="/login" element={<Login />} />
 
-        {/* Admin Protected Routes (using Navbar as Layout) */ }
-        <Route path="/admin" element={ <Navbar /> }>
-          <Route index element={ <Navigate to="/admin/dashboard" replace /> } />
-          <Route path="dashboard" element={ <Dashboard /> } />
-          <Route path="reviews" element={ <Reviews /> } />
-          <Route path="clients" element={ <Clients /> } />
-          <Route path="clients/new" element={ <ClientsEdit /> } />
-          <Route path="clients/edit/:clientId" element={ <ClientsEdit /> } />
-          <Route path="qrcode" element={ <QRPage /> } />
-          <Route path="settings" element={ <Settings /> } />
-          <Route path="subscriptions" element={ <SubscriptionManagement /> } />
-          <Route path="notifications" element={ <Notifications /> } />
+        {/* Admin Protected Routes (using Navbar as Layout) */}
+        <Route path="/admin" element={<Navbar />}>
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="reviews" element={<Reviews />} />
+          <Route path="clients" element={<Clients />} />
+          <Route path="clients/new" element={<ClientsEdit />} />
+          <Route path="clients/edit/:clientId" element={<ClientsEdit />} />
+          <Route path="qrcode" element={<QRPage />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="subscriptions" element={<SubscriptionManagement />} />
+          <Route path="notifications" element={<Notifications />} />
+        </Route>
+
+        {/* Client Protected Routes (using Navbar as Layout) */}
+        <Route path="/client" element={<Navbar />}>
+          <Route index element={<Navigate to="/client/dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="reviews" element={<Reviews />} />
+          <Route path="qrcode" element={<QRPage />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </Suspense>

@@ -1,9 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
 const resolveBaseUrl = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-  // Remove '/api' from the end to get the root base URL (for images, etc.)
-  return apiUrl.replace(/\/api\/?$/, '');
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (apiUrl) {
+    return apiUrl.replace(/\/api\/?$/, '');
+  }
+  return "https://gmbreviews.siarasystems.com";
 };
 
 // Root server URL (for images, uploads, etc.)
@@ -16,9 +18,22 @@ const api = axios.create({
   baseURL: API_URL,
   withCredentials: true, // Crucial for sending/receiving HttpOnly cookies
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
 
 const createInFlightRequest = (requestFn) => {
   let inFlightPromise = null;
@@ -37,19 +52,19 @@ const createInFlightRequest = (requestFn) => {
 };
 
 const getAdminNotificationsRequest = createInFlightRequest(async () => {
-  const response = await api.get('/admin/notifications');
+  const response = await api.get("/admin/notifications");
   return response.data;
 });
 
 const generateQRCodeRequest = createInFlightRequest(async () => {
-  const response = await api.get('/qr/generate');
+  const response = await api.get("/qr/generate");
   return response.data;
 });
 
 export const reviewService = {
   submitReview: async (reviewData) => {
     try {
-      const response = await api.post('/review', reviewData);
+      const response = await api.post("/review", reviewData);
       return response.data;
     } catch (error) {
       console.error("API error during submitReview:", error);
@@ -63,6 +78,7 @@ export const reviewService = {
       if (selectedClient === 'admin') {
         params.clientId = 'admin';
       } else if (selectedClient && selectedClient !== 'all') {
+        params.clientId = selectedClient;
         params.businessName = selectedClient;
       }
       if (dateRange) params.dateRange = dateRange;
@@ -72,7 +88,7 @@ export const reviewService = {
       if (page) params.page = page;
       if (limit) params.limit = limit;
 
-      const response = await api.get('/review/all', { params });
+      const response = await api.get("/review/all", { params });
       return response.data;
     } catch (error) {
       console.error("API error during getAllReviews:", error);
@@ -80,31 +96,42 @@ export const reviewService = {
     }
   },
 
-  generateReview: async (keywords, businessName, language = 'english') => {
+  generateReview: async (keywords, businessName, language = "english") => {
     try {
-      const response = await api.post('/review/generate', { keywords, businessName, language });
+      const response = await api.post("/review/generate", {
+        keywords,
+        businessName,
+        language,
+      });
       return response.data; // { generatedReview: "..." }
     } catch (error) {
       console.error("API error during generateReview:", error);
       throw error.response?.data || error;
     }
-  }
+  },
 };
 
 export const authService = {
   login: async (email, password) => {
     try {
-      const response = await api.post('/login', { email, password });
+      const response = await api.post("/login", { email, password });
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+      }
       return response.data;
     } catch (error) {
-      console.error("Auth error during login:", error.response?.data || error.message);
+      console.error(
+        "Auth error during login:",
+        error.response?.data || error.message,
+      );
       throw error.response?.data || error;
     }
   },
 
   logout: async () => {
     try {
-      const response = await api.post('/login/logout');
+      const response = await api.post("/login/logout");
+      localStorage.removeItem("token");
       return response.data;
     } catch (error) {
       console.error("Logout error:", error);
@@ -114,7 +141,7 @@ export const authService = {
 
   verifyAuth: async () => {
     try {
-      const response = await api.get('/login/verify');
+      const response = await api.get("/login/verify");
       return response.data; // Expected { isAuthenticated: true, user }
     } catch (error) {
       return { isAuthenticated: false };
@@ -125,19 +152,19 @@ export const authService = {
 export const qrService = {
   generateQRCode: async () => {
     try {
-      const response = await api.get('/qr/generate');
+      const response = await api.get("/qr/generate");
       return response.data;
     } catch (error) {
       console.error("API error during generateQRCode:", error);
       throw error.response?.data || error;
     }
-  }
+  },
 };
 
 export const adminService = {
   getClients: async () => {
     try {
-      const response = await api.get('/admin/clients');
+      const response = await api.get("/admin/clients");
       return response.data;
     } catch (error) {
       console.error("API error during getClients:", error);
@@ -146,7 +173,7 @@ export const adminService = {
   },
   createClient: async (clientData) => {
     try {
-      const response = await api.post('/admin/clients', clientData);
+      const response = await api.post("/admin/clients", clientData);
       return response.data;
     } catch (error) {
       console.error("API error during createClient:", error);
@@ -164,7 +191,9 @@ export const adminService = {
   },
   toggleClientStatus: async (clientId, isActive) => {
     try {
-      const response = await api.put(`/admin/clients/${clientId}/status`, { isActive });
+      const response = await api.put(`/admin/clients/${clientId}/status`, {
+        isActive,
+      });
       return response.data;
     } catch (error) {
       console.error("API error during toggleClientStatus:", error);
@@ -176,10 +205,10 @@ export const adminService = {
       const formData = new FormData();
       formData.append("logo", file);
 
-      const response = await api.post('/admin/upload', formData, {
+      const response = await api.post("/admin/upload", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
       return response.data; // expects { url: "/uploads/filename" }
     } catch (error) {
@@ -206,7 +235,9 @@ export const adminService = {
   },
   getExpiringSubscriptions: async (days = 7) => {
     try {
-      const response = await api.get(`/admin/expiring-subscriptions`, { params: { days } });
+      const response = await api.get(`/admin/expiring-subscriptions`, {
+        params: { days },
+      });
       return response.data;
     } catch (error) {
       console.error("API error during getExpiringSubscriptions:", error);
@@ -215,24 +246,62 @@ export const adminService = {
   },
   sendReminder: async (clientId, subscriptionId) => {
     try {
-      const response = await api.post('/admin/send-reminder', { clientId, subscriptionId });
+      const response = await api.post("/admin/send-reminder", {
+        clientId,
+        subscriptionId,
+      });
       return response.data;
     } catch (error) {
       console.error("API error during sendReminder:", error);
       throw error.response?.data || error;
     }
-  }
+  },
+  getSystemSettings: async () => {
+    try {
+      const response = await api.get("/admin/system-settings");
+      return response.data;
+    } catch (error) {
+      console.error("API error during getSystemSettings:", error);
+      throw error.response?.data || error;
+    }
+  },
+  updateSystemSettings: async (settingsData) => {
+    try {
+      const response = await api.put("/admin/system-settings", settingsData);
+      return response.data;
+    } catch (error) {
+      console.error("API error during updateSystemSettings:", error);
+      throw error.response?.data || error;
+    }
+  },
 };
 
 export const clientService = {
-  getClientReviews: async (type = '', search = '', dateRange = '', startDate = '', endDate = '', page = 1, limit = 10) => {
+  getSystemSettings: async () => {
+    try {
+      const response = await api.get("/client/system-settings");
+      return response.data;
+    } catch (error) {
+      console.error("API error during getSystemSettings:", error);
+      throw error.response?.data || error;
+    }
+  },
+  getClientReviews: async (
+    type = "",
+    search = "",
+    dateRange = "",
+    startDate = "",
+    endDate = "",
+    page = 1,
+    limit = 10,
+  ) => {
     try {
       const params = { type, search, page, limit };
       if (dateRange) params.dateRange = dateRange;
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
 
-      const response = await api.get('/client/reviews', { params });
+      const response = await api.get("/client/reviews", { params });
       return response.data;
     } catch (error) {
       console.error("API error during getClientReviews:", error);
@@ -241,7 +310,7 @@ export const clientService = {
   },
   getProfile: async () => {
     try {
-      const response = await api.get('/client/profile');
+      const response = await api.get("/client/profile");
       return response.data;
     } catch (error) {
       console.error("API error during getProfile:", error);
@@ -259,7 +328,7 @@ export const clientService = {
   },
   updateProfile: async (profileData) => {
     try {
-      const response = await api.put('/client/profile', profileData);
+      const response = await api.put("/client/profile", profileData);
       return response.data;
     } catch (error) {
       console.error("API error during updateProfile:", error);
@@ -268,7 +337,7 @@ export const clientService = {
   },
   getNotifications: async () => {
     try {
-      const response = await api.get('/client/notifications');
+      const response = await api.get("/client/notifications");
       return response.data;
     } catch (error) {
       console.error("API error during getNotifications:", error);
@@ -283,13 +352,13 @@ export const clientService = {
       console.error("API error during markNotificationRead:", error);
       throw error.response?.data || error;
     }
-  }
+  },
 };
 
 export const subscriptionService = {
   getSubscriptionPlans: async () => {
     try {
-      const response = await api.get('/subscription/plans');
+      const response = await api.get("/subscription/plans");
       return response.data;
     } catch (error) {
       console.error("API error during getSubscriptionPlans:", error);
@@ -319,7 +388,7 @@ export const subscriptionService = {
 
   getMySubscription: async () => {
     try {
-      const response = await api.get('/subscription/my-subscription');
+      const response = await api.get("/subscription/my-subscription");
       return response.data;
     } catch (error) {
       console.error("API error during getMySubscription:", error);
@@ -329,7 +398,7 @@ export const subscriptionService = {
 
   checkSubscriptionValidity: async () => {
     try {
-      const response = await api.get('/subscription/check-validity');
+      const response = await api.get("/subscription/check-validity");
       return response.data;
     } catch (error) {
       console.error("API error during checkSubscriptionValidity:", error);
@@ -339,14 +408,14 @@ export const subscriptionService = {
 
   registerSubscription: async (clientId, planId, paymentData = {}) => {
     try {
-      const response = await api.post('/subscription/register', {
+      const response = await api.post("/subscription/register", {
         clientId,
         planId,
         auto_renew: paymentData.autoRenew ?? true,
         amount_paid: paymentData.amountPaid ?? 0,
-        payment_method: paymentData.paymentMethod ?? 'manual',
+        payment_method: paymentData.paymentMethod ?? "manual",
         transaction_id: paymentData.transactionId ?? null,
-        notes: paymentData.notes ?? ''
+        notes: paymentData.notes ?? "",
       });
       return response.data;
     } catch (error) {
@@ -357,7 +426,7 @@ export const subscriptionService = {
 
   getAllSubscriptions: async () => {
     try {
-      const response = await api.get('/subscription/admin/all');
+      const response = await api.get("/subscription/admin/all");
       return response.data;
     } catch (error) {
       console.error("API error during getAllSubscriptions:", error);
@@ -367,7 +436,7 @@ export const subscriptionService = {
 
   getSubscriptionStats: async () => {
     try {
-      const response = await api.get('/subscription/admin/stats');
+      const response = await api.get("/subscription/admin/stats");
       return response.data;
     } catch (error) {
       console.error("API error during getSubscriptionStats:", error);
@@ -403,7 +472,40 @@ export const subscriptionService = {
       console.error("API error during renewSubscription:", error);
       throw error.response?.data || error;
     }
-  }
+  },
+
+  createPlan: async (planData) => {
+    try {
+      const response = await api.post("/subscription/admin/plans", planData);
+      return response.data;
+    } catch (error) {
+      console.error("API error during createPlan:", error);
+      throw error.response?.data || error;
+    }
+  },
+
+  updatePlan: async (planId, planData) => {
+    try {
+      const response = await api.put(
+        `/subscription/admin/plans/${planId}`,
+        planData,
+      );
+      return response.data;
+    } catch (error) {
+      console.error("API error during updatePlan:", error);
+      throw error.response?.data || error;
+    }
+  },
+
+  deletePlan: async (planId) => {
+    try {
+      const response = await api.delete(`/subscription/admin/plans/${planId}`);
+      return response.data;
+    } catch (error) {
+      console.error("API error during deletePlan:", error);
+      throw error.response?.data || error;
+    }
+  },
 };
 
 export default api;
